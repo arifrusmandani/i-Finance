@@ -1,5 +1,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip } from 'recharts';
+import { 
+  PieChart, 
+  Pie, 
+  Cell, 
+  ResponsiveContainer, 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  Tooltip, 
+  Area,
+  AreaChart
+} from 'recharts';
+import { Select, SelectTrigger, SelectContent, SelectItem } from '../components/ui/select';
 import GreetingCard from '../components/GreetingCard';
 import OverviewSection from '../components/OverviewSection';
 import FastTransaction from '../components/FastTransaction';
@@ -28,6 +41,23 @@ const balanceHistory = [
   { name: 'Mar', value: 45 },
   { name: 'Apr', value: 30 },
   { name: 'May', value: 50 }
+];
+
+const cashflowData = [
+  { day: 'Sun', income: 1000, expense: 700 },
+  { day: 'Mon', income: 800, expense: 400 },
+  { day: 'Tue', income: 1200, expense: 800 },
+  { day: 'Wed', income: 600, expense: 400 },
+  { day: 'Thu', income: 1400, expense: 900 },
+  { day: 'Fri', income: 1100, expense: 700 },
+  { day: 'Sat', income: 1300, expense: 800 }
+];
+
+const periodOptions = [
+  { label: 'Last 7 Days', value: '7d' },
+  { label: 'Last 30 Days', value: '30d' },
+  { label: 'Last 90 Days', value: '90d' },
+  { label: 'Last 12 Months', value: '12m' }
 ];
 
 export default function Dashboard() {
@@ -126,6 +156,109 @@ export default function Dashboard() {
 
         {/* Recent Transactions */}
         <RecentTransactions />
+
+        {/* Cashflow Chart */}
+        <Card className="overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
+            <div className="space-y-1">
+              <CardTitle className="text-xl font-semibold text-gray-900 dark:text-white">
+                Cashflow
+              </CardTitle>
+            </div>
+            <Select defaultValue="7d">
+              <SelectTrigger className="w-[140px] border-gray-200 dark:border-gray-700">
+                Last 7 Days
+              </SelectTrigger>
+              <SelectContent>
+                {periodOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between mb-6">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  Total Balance
+                </p>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  $12,000
+                </h2>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Income</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded-full bg-gray-400"></div>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Expense</span>
+                </div>
+              </div>
+            </div>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart 
+                  data={cashflowData} 
+                  margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#4ade80" stopOpacity={0.2}/>
+                      <stop offset="95%" stopColor="#4ade80" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="expenseGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#94a3b8" stopOpacity={0.2}/>
+                      <stop offset="95%" stopColor="#94a3b8" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <XAxis 
+                    dataKey="day" 
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#888888', fontSize: 12 }}
+                    dy={10}
+                  />
+                  <YAxis 
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#888888', fontSize: 12 }}
+                    tickFormatter={(value) => `$${value}`}
+                  />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                      border: 'none',
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    }}
+                    formatter={(value) => [`$${value}`, '']}
+                    labelStyle={{ color: '#888888' }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="income"
+                    stroke="#4ade80"
+                    strokeWidth={2}
+                    fill="url(#incomeGradient)"
+                    dot={false}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="expense"
+                    stroke="#94a3b8"
+                    strokeWidth={2}
+                    fill="url(#expenseGradient)"
+                    dot={false}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Balance History */}
         <Card>
