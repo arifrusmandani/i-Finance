@@ -5,6 +5,7 @@ import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
 import Members from './pages/Members';
+import Reports from './pages/Reports';
 
 export default function App() {
   const [showText, setShowText] = useState(true);
@@ -20,6 +21,7 @@ export default function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/transactions" element={<Transactions />} />
               <Route path="/members" element={<Members />} />
+              <Route path="/reports" element={<Reports />} />
               {/* Route lainnya bisa ditambahkan di sini */}
             </Routes>
           </main>

@@ -1,17 +1,21 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { Card, CardContent } from './ui/card';
 
-const GreetingCard = () => {
+export default function GreetingCard() {
   return (
-    <div className="bg-blue-500 text-white rounded-2xl p-6 flex items-center justify-between shadow-md">
-      <div className="text-2xl font-semibold">
-        Hello, Demmy!
-      </div>
-      <Avatar className="w-14 h-14 rounded-full border-2 border-white shadow-lg">
-        <AvatarImage src="avatar.png" alt="User Avatar" />
-        <AvatarFallback>DM</AvatarFallback>
-      </Avatar>
-    </div>
+    <Card className="bg-gradient-to-r from-blue-500 to-blue-600 border-none text-white overflow-hidden">
+      <CardContent className="p-6 flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <h2 className="text-2xl sm:text-3xl font-bold">Hello, Demmy!</h2>
+          <span className="text-2xl">👋</span>
+        </div>
+        <div className="hidden sm:block">
+          <img 
+            src="https://api.dicebear.com/7.x/adventurer/svg?seed=demmy" 
+            alt="Avatar" 
+            className="w-16 h-16"
+          />
+        </div>
+      </CardContent>
+    </Card>
   );
-};
-
-export default GreetingCard;
+}
