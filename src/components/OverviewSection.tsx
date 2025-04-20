@@ -5,7 +5,6 @@ import { formatCurrency } from '../lib/utils';
 export default function OverviewSection() {
   const data = {
     totalBalance: 432568,
-    totalPeriodChange: 245860,
     totalExpenses: 25.35,
     totalIncome: 22.56,
     lastMonthChange: 24478,
@@ -13,7 +12,7 @@ export default function OverviewSection() {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {/* Total Balance Card */}
       <Card className="bg-white dark:bg-gray-800">
         <CardContent className="p-6">
@@ -21,25 +20,6 @@ export default function OverviewSection() {
           <div className="mt-2">
             <span className="text-2xl font-bold text-gray-900 dark:text-white">
               {formatCurrency(data.totalBalance)}
-            </span>
-            <div className="flex items-center mt-2">
-              <ArrowUpIcon className="w-4 h-4 text-green-500 mr-1" />
-              <span className="text-sm text-green-500">{data.changePercentage}%</span>
-              <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
-                Last month {formatCurrency(data.lastMonthChange)}
-              </span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Total Period Change Card */}
-      <Card className="bg-white dark:bg-gray-800">
-        <CardContent className="p-6">
-          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Period Change</h3>
-          <div className="mt-2">
-            <span className="text-2xl font-bold text-gray-900 dark:text-white">
-              {formatCurrency(data.totalPeriodChange)}
             </span>
             <div className="flex items-center mt-2">
               <ArrowUpIcon className="w-4 h-4 text-green-500 mr-1" />

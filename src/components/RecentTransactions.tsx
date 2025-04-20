@@ -1,12 +1,21 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { formatCurrency } from '../lib/utils';
 import { 
-  Brush, 
-  Receipt, 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from './ui/table';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { format } from 'date-fns';
+import { 
+  Utensils,
   Car, 
-  GraduationCap,
-  Tv
+  Wallet,
+  ShoppingBag,
+  Zap
 } from 'lucide-react';
 
 interface Transaction {
@@ -15,114 +24,117 @@ interface Transaction {
   category: string;
   description: string;
   amount: number;
-  date: string;
-  time: string;
+  datetime: string;
+  type: string;
 }
 
 const transactionData: Transaction[] = [
   {
     id: 1,
-    icon: <Brush className="w-4 h-4" />,
-    category: 'Beauty',
-    description: 'Grocery Items and Beverage soft drinks',
-    amount: 32.20,
-    date: '12.12.2023',
-    time: '09:30 AM'
+    icon: <Utensils className="w-4 h-4" />,
+    category: 'Food & Drinks',
+    description: 'Lunch with team at Burger King',
+    amount: -125000,
+    datetime: '2024-03-15T12:30:00',
+    type: 'expense'
   },
   {
     id: 2,
-    icon: <Receipt className="w-4 h-4" />,
-    category: 'Bills & Fees',
-    description: 'Grocery Items and Beverage soft drinks',
-    amount: 32.20,
-    date: '12.12.2023',
-    time: '10:15 AM'
+    icon: <Car className="w-4 h-4" />,
+    category: 'Transportation',
+    description: 'Taxi fare to office',
+    amount: -50000,
+    datetime: '2024-03-15T10:15:00',
+    type: 'expense'
   },
   {
     id: 3,
-    icon: <Car className="w-4 h-4" />,
-    category: 'Car',
-    description: 'Grocery Items and Beverage soft drinks',
-    amount: 32.20,
-    date: '12.12.2023',
-    time: '11:45 AM'
+    icon: <Wallet className="w-4 h-4" />,
+    category: 'Salary',
+    description: 'Monthly salary payment',
+    amount: 5000000,
+    datetime: '2024-03-14T09:00:00',
+    type: 'income'
   },
   {
     id: 4,
-    icon: <GraduationCap className="w-4 h-4" />,
-    category: 'Education',
-    description: 'Grocery Items and Beverage soft drinks',
-    amount: 32.20,
-    date: '12.12.2023',
-    time: '02:30 PM'
+    icon: <ShoppingBag className="w-4 h-4" />,
+    category: 'Shopping',
+    description: 'New clothes from H&M',
+    amount: -750000,
+    datetime: '2024-03-14T15:45:00',
+    type: 'expense'
   },
   {
     id: 5,
-    icon: <Tv className="w-4 h-4" />,
-    category: 'Entertainment',
-    description: 'Grocery Items and Beverage soft drinks',
-    amount: 32.20,
-    date: '12.12.2023',
-    time: '04:15 PM'
+    icon: <Zap className="w-4 h-4" />,
+    category: 'Utilities',
+    description: 'Electricity bill payment',
+    amount: -200000,
+    datetime: '2024-03-13T14:20:00',
+    type: 'expense'
   }
 ];
 
 export default function RecentTransactions() {
   return (
-    <Card className="col-span-4">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-xl font-semibold text-gray-900 dark:text-white">
-          Recent Transactions
-        </CardTitle>
+        <CardTitle className="text-base font-medium">Recent Transactions</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="relative overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="text-gray-700 dark:text-gray-300 border-b dark:border-gray-700">
-              <tr>
-                <th scope="col" className="px-4 py-3">Category</th>
-                <th scope="col" className="px-4 py-3">Date</th>
-                <th scope="col" className="px-4 py-3">Description</th>
-                <th scope="col" className="px-4 py-3 text-right">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
+        <TooltipProvider>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Category</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+                <TableHead className="text-right">Datetime</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {transactionData.map((transaction) => (
-                <tr 
-                  key={transaction.id} 
-                  className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
-                >
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                        {transaction.icon}
-                      </div>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {transaction.category}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex flex-col">
-                      <span className="text-gray-900 dark:text-white">
-                        {transaction.date}
-                      </span>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                        {transaction.time}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">
-                    {transaction.description}
-                  </td>
-                  <td className="px-4 py-3 text-right text-red-600 dark:text-red-400 font-medium">
-                    -${formatCurrency(transaction.amount)}
-                  </td>
-                </tr>
+                <Tooltip key={transaction.id}>
+                  <TooltipTrigger asChild>
+                    <TableRow 
+                      className="cursor-help hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    >
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-400">
+                            {transaction.icon}
+                          </div>
+                          <span className="text-sm text-gray-900 dark:text-gray-100">
+                            {transaction.category}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className={`text-right text-sm ${
+                        transaction.type === 'expense' 
+                          ? 'text-red-600 dark:text-red-400'
+                          : 'text-green-600 dark:text-green-400'
+                      }`}>
+                        {transaction.type === 'expense' ? '-' : '+'}
+                        Rp {Math.abs(transaction.amount).toLocaleString('id-ID')}
+                      </TableCell>
+                      <TableCell className="text-right text-sm text-gray-500 dark:text-gray-400">
+                        {format(new Date(transaction.datetime), 'dd MMM yyyy HH:mm')}
+                      </TableCell>
+                    </TableRow>
+                  </TooltipTrigger>
+                  <TooltipContent 
+                    side="right" 
+                    className="bg-white dark:bg-gray-800 px-3 py-2 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700"
+                  >
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      {transaction.description}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </TooltipProvider>
       </CardContent>
     </Card>
   );

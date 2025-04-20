@@ -9,7 +9,7 @@ export default function Sidebar({ showText }: SidebarProps) {
   const location = useLocation();
 
   const navItems = [
-    { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
+    { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/transactions', icon: Wallet, label: 'Transaksi' },
     { path: '/members', icon: Users, label: 'Anggota' },
     { path: '/reports', icon: FileText, label: 'Laporan' },
