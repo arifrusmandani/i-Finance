@@ -22,7 +22,7 @@ export default function Login() {
     try {
       await login(email, password);
       navigate('/dashboard');
-    } catch (err) {
+    } catch {
       setError('Invalid email or password');
     } finally {
       setIsLoading(false);
@@ -85,7 +85,7 @@ export default function Login() {
               <Input
                 type="email"
                 placeholder="you@example.com"
-                className="pl-10 w-full"
+                className="pl-10 w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700"
                 value={email}
                 onChange={handleEmailChange}
                 required
@@ -112,7 +112,7 @@ export default function Login() {
               <Input
                 type={showPassword ? "text" : "password"}
                 placeholder="At least 8 characters"
-                className="pl-10 pr-10 w-full"
+                className="pl-10 pr-10 w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700"
                 value={password}
                 onChange={handlePasswordChange}
                 required
@@ -135,7 +135,7 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               >
                 {showPassword ? (
                   <EyeOffIcon className="h-5 w-5" />
