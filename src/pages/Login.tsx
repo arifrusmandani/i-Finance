@@ -1,29 +1,55 @@
-import { useState, FormEvent, ChangeEvent } from 'react';
+import { useState, FormEvent, ChangeEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { authService } from '../services/auth.service';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
+    setEmailError('');
+    setPasswordError('');
     setIsLoading(true);
 
     try {
-      await login(email, password);
-      navigate('/dashboard');
-    } catch {
-      setError('Invalid email or password');
+      const response = await authService.login({
+        username: email,
+        password: password
+      });
+      
+      if (response.status && response.data) {
+        await login(response.data.access_token, response.data.user);
+        navigate('/dashboard');
+      } else {
+        setError(response.message || 'Login failed');
+      }
+    } catch (err: any) {
+      if (err.code === 401) {
+        setError(err.message || 'Invalid email or password');
+        setEmailError('Invalid email or password');
+        setPasswordError('Invalid email or password');
+      } else {
+        setError(err.message || 'An error occurred during login');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -31,10 +57,12 @@ export default function Login() {
 
   const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
+    setEmailError('');
   };
 
   const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
+    setPasswordError('');
   };
 
   return (
@@ -75,7 +103,7 @@ export default function Login() {
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="text-sm text-red-500 dark:text-red-400">
+            <div className="text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
               {error}
             </div>
           )}
@@ -85,7 +113,9 @@ export default function Login() {
               <Input
                 type="email"
                 placeholder="you@example.com"
-                className="pl-10 w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700"
+                className={`pl-10 w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border ${
+                  emailError ? 'border-red-500 dark:border-red-500' : 'border-gray-200 dark:border-gray-700'
+                }`}
                 value={email}
                 onChange={handleEmailChange}
                 required
@@ -105,6 +135,9 @@ export default function Login() {
                 />
               </svg>
             </div>
+            {emailError && (
+              <p className="text-sm text-red-500 dark:text-red-400">{emailError}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -112,7 +145,9 @@ export default function Login() {
               <Input
                 type={showPassword ? "text" : "password"}
                 placeholder="At least 8 characters"
-                className="pl-10 pr-10 w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700"
+                className={`pl-10 pr-10 w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border ${
+                  passwordError ? 'border-red-500 dark:border-red-500' : 'border-gray-200 dark:border-gray-700'
+                }`}
                 value={password}
                 onChange={handlePasswordChange}
                 required
@@ -144,6 +179,9 @@ export default function Login() {
                 )}
               </button>
             </div>
+            {passwordError && (
+              <p className="text-sm text-red-500 dark:text-red-400">{passwordError}</p>
+            )}
             <div className="flex justify-end">
               <a
                 href="#"
