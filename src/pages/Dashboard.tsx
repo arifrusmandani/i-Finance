@@ -4,8 +4,6 @@ import {
   Pie, 
   Cell, 
   ResponsiveContainer, 
-  LineChart, 
-  Line, 
   XAxis, 
   YAxis, 
   Tooltip, 
@@ -13,14 +11,15 @@ import {
   AreaChart
 } from 'recharts';
 import { Select, SelectTrigger, SelectContent, SelectItem } from '../components/ui/select';
-import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { ChevronRight } from 'lucide-react';
 import GreetingCard from '../components/GreetingCard';
 import OverviewSection from '../components/OverviewSection';
 import RecentTransactions from '../components/RecentTransactions';
 import { formatCurrency } from '../lib/utils';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { categoryService } from '../services/category.service';
+import { FormattedInput } from '../components/ui/formatted-input';
 
 // Dummy data for charts
 const outcomeData = [
@@ -35,15 +34,6 @@ const incomeData = [
   { name: 'Salary', value: 2268, color: '#60a5fa' },
   { name: 'Transactions', value: 1738, color: '#4ade80' },
   { name: 'Other', value: 911, color: '#c084fc' }
-];
-
-const balanceHistory = [
-  { name: 'Dec', value: 15 },
-  { name: 'Jan', value: 35 },
-  { name: 'Feb', value: 25 },
-  { name: 'Mar', value: 45 },
-  { name: 'Apr', value: 30 },
-  { name: 'May', value: 50 }
 ];
 
 const cashflowData = [
@@ -72,15 +62,6 @@ const mostExpensesData = [
   { category: 'Other', amount: 3184, color: '#6b7280', percentage: 8 }
 ];
 
-// Categories for quick transaction
-const categories = [
-  { label: 'Food', value: 'food', icon: '🍔' },
-  { label: 'Transport', value: 'transport', icon: '🚗' },
-  { label: 'Shopping', value: 'shopping', icon: '🛍️' },
-  { label: 'Pet', value: 'pet', icon: '🐾' },
-  { label: 'Bills', value: 'bills', icon: '📄' }
-];
-
 interface PieEntry {
   name: string;
   value: number;
@@ -92,11 +73,54 @@ interface PieEntry {
   };
 }
 
+interface Category {
+  label: string;
+  value: string;
+  icon: string;
+}
+
+interface ApiError {
+  message: string;
+  code?: number;
+  status?: boolean;
+}
+
 export default function Dashboard() {
   const [activeExpense, setActiveExpense] = useState(mostExpensesData[0]);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
+  const [amount, setAmount] = useState<number>(0);
 
-  const handlePieEnter = (_: PieEntry, index: number) => {
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setIsLoadingCategories(true);
+      try {
+        const response = await categoryService.getCategories();
+        if (response.status && response.data) {
+          const formattedCategories = response.data.map(cat => ({
+            label: cat.name,
+            value: cat.code,
+            icon: cat.icon
+          }));
+          setCategories(formattedCategories);
+          if (formattedCategories.length > 0) {
+            setSelectedCategory(formattedCategories[0].value);
+          }
+        }
+      } catch (error: unknown) {
+        const apiError = error as ApiError;
+        console.error('Failed to fetch categories:', apiError.message || 'Unknown error occurred');
+      } finally {
+        setIsLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  const handlePieEnter = (_: PieEntry | null, index: number) => {
     setHoveredIndex(index);
     setActiveExpense(mostExpensesData[index]);
   };
@@ -342,7 +366,7 @@ export default function Dashboard() {
                           dataKey="amount"
                           onMouseEnter={handlePieEnter}
                           onMouseLeave={handlePieLeave}
-                          onClick={(_, index) => handlePieEnter(_, index)}
+                          onClick={(_, index) => handlePieEnter(null, index)}
                         >
                           {mostExpensesData.map((entry, index) => (
                             <Cell 
@@ -383,9 +407,9 @@ export default function Dashboard() {
                             ? 'bg-gray-50 dark:bg-gray-700 scale-105' 
                             : 'hover:bg-gray-50 dark:hover:bg-gray-700'
                         }`}
-                        onMouseEnter={() => handlePieEnter(null as any, index)}
+                        onMouseEnter={() => handlePieEnter(null, index)}
                         onMouseLeave={handlePieLeave}
-                        onClick={() => handlePieEnter(null as any, index)}
+                        onClick={() => handlePieEnter(null, index)}
                       >
                         <div className="flex items-center gap-2">
                           <div 
@@ -413,12 +437,22 @@ export default function Dashboard() {
                 <CardTitle className="text-base font-medium">Quick Transaction</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Select defaultValue="pet">
+                <Select 
+                  value={selectedCategory} 
+                  onValueChange={setSelectedCategory}
+                  disabled={isLoadingCategories}
+                >
                   <SelectTrigger className="w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700">
-                    <div className="flex items-center gap-2">
-                      <span>🐾</span>
-                      <span>Pet</span>
-                    </div>
+                    {isLoadingCategories ? (
+                      <div className="flex items-center gap-2">
+                        <span>Loading...</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <span>{categories.find(cat => cat.value === selectedCategory)?.icon}</span>
+                        <span>{categories.find(cat => cat.value === selectedCategory)?.label}</span>
+                      </div>
+                    )}
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((category) => (
@@ -432,11 +466,12 @@ export default function Dashboard() {
                   </SelectContent>
                 </Select>
 
-                <Input
-                  type="number"
+                <FormattedInput
+                  value={amount}
+                  onChange={setAmount}
                   placeholder="Amount"
+                  prefix="Rp"
                   className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700"
-                  defaultValue="13.83"
                 />
 
                 <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
