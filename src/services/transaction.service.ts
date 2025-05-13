@@ -32,5 +32,17 @@ export const transactionService = {
       }
       throw error;
     }
+  },
+
+  async getAllTransactions(offset: number = 0, limit: number = 20): Promise<TransactionResponse> {
+    try {
+      const response = await api.get<TransactionResponse>(`/transaction/?offset=${offset}&limit=${limit}`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.data) {
+        throw error.response.data;
+      }
+      throw error;
+    }
   }
 }; 

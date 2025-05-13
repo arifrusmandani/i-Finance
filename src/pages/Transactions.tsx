@@ -1,40 +1,59 @@
 // src/pages/Transactions.tsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { formatCurrency, formatDate } from '../lib/utils';
 import { ArrowDownIcon, ArrowUpIcon, FilterIcon, PlusIcon, SearchIcon } from 'lucide-react';
+import { transactionService } from '../services/transaction.service';
 
-type Transaction = {
+interface Transaction {
   id: number;
-  tanggal: string;
-  kategori: string;
-  deskripsi: string;
-  jumlah: number;
-  tipe: 'Pemasukan' | 'Pengeluaran';
-};
-
-const dummyTransactions: Transaction[] = [
-  { id: 1, tanggal: '2025-04-01', kategori: 'Gaji', deskripsi: 'Gaji bulan April', jumlah: 7000000, tipe: 'Pemasukan' },
-  { id: 2, tanggal: '2025-04-02', kategori: 'Belanja', deskripsi: 'Belanja bulanan', jumlah: 1500000, tipe: 'Pengeluaran' },
-  { id: 3, tanggal: '2025-04-03', kategori: 'Transportasi', deskripsi: 'Bensin motor', jumlah: 250000, tipe: 'Pengeluaran' },
-];
+  amount: number;
+  description: string;
+  type: 'EXPENSE' | 'INCOME';
+  category_code: string;
+  date: string;
+  user_id: number;
+  category_name: string;
+  category_icon: string;
+  created_at: string;
+}
 
 export default function Transactions() {
-  const [transactions] = useState<Transaction[]>(dummyTransactions);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const response = await transactionService.getAllTransactions();
+        if (response.status && response.data) {
+          setTransactions(response.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch transactions:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, []);
 
   const filteredTransactions = transactions.filter(tx =>
-    tx.deskripsi.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    tx.kategori.toLowerCase().includes(searchTerm.toLowerCase())
+    tx.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    tx.category_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const totalIncome = transactions
-    .filter(tx => tx.tipe === 'Pemasukan')
-    .reduce((sum, tx) => sum + tx.jumlah, 0);
+    .filter(tx => tx.type === 'INCOME')
+    .reduce((sum, tx) => sum + tx.amount, 0);
 
   const totalExpense = transactions
-    .filter(tx => tx.tipe === 'Pengeluaran')
-    .reduce((sum, tx) => sum + tx.jumlah, 0);
+    .filter(tx => tx.type === 'EXPENSE')
+    .reduce((sum, tx) => sum + tx.amount, 0);
+
+  const totalBalance = totalIncome - totalExpense;
 
   return (
     <div className="min-h-screen">
@@ -52,10 +71,10 @@ export default function Transactions() {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="bg-white dark:bg-gray-800">
             <CardHeader>
-              <CardTitle className="text-lg">Total Income</CardTitle>
+              <CardTitle className="text-lg text-gray-900 dark:text-white">Total Income</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center">
@@ -64,9 +83,9 @@ export default function Transactions() {
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-white dark:bg-gray-800">
             <CardHeader>
-              <CardTitle className="text-lg">Total Expense</CardTitle>
+              <CardTitle className="text-lg text-gray-900 dark:text-white">Total Expense</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center">
@@ -75,10 +94,25 @@ export default function Transactions() {
               </div>
             </CardContent>
           </Card>
+          <Card className="bg-white dark:bg-gray-800">
+            <CardHeader>
+              <CardTitle className="text-lg text-gray-900 dark:text-white">Total Balance</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center">
+                <span className={`w-4 h-4 mr-2 ${totalBalance >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  {totalBalance >= 0 ? '+' : '-'}
+                </span>
+                <span className={`text-2xl font-bold ${totalBalance >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  {formatCurrency(Math.abs(totalBalance))}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Search and Filter */}
-        <Card>
+        <Card className="bg-white dark:bg-gray-800">
           <CardContent className="p-4">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="relative flex-1">
@@ -100,36 +134,46 @@ export default function Transactions() {
         </Card>
 
         {/* Transactions List */}
-        <Card>
+        <Card className="bg-white dark:bg-gray-800">
           <CardContent className="p-0">
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              {filteredTransactions.map((tx) => (
-                <div key={tx.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        tx.tipe === 'Pemasukan' 
-                          ? 'bg-green-100 text-green-600 dark:bg-green-900/20' 
-                          : 'bg-red-100 text-red-600 dark:bg-red-900/20'
-                      }`}>
-                        {tx.tipe === 'Pemasukan' ? <ArrowUpIcon className="w-5 h-5" /> : <ArrowDownIcon className="w-5 h-5" />}
+              {isLoading ? (
+                <div className="p-4 text-center text-gray-500 dark:text-gray-400">
+                  Loading transactions...
+                </div>
+              ) : filteredTransactions.length === 0 ? (
+                <div className="p-4 text-center text-gray-500 dark:text-gray-400">
+                  No transactions found
+                </div>
+              ) : (
+                filteredTransactions.map((tx) => (
+                  <div key={tx.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          tx.type === 'INCOME' 
+                            ? 'bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-400' 
+                            : 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400'
+                        }`}>
+                          <span className="text-lg">{tx.category_icon}</span>
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-900 dark:text-white">{tx.category_name}</h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">{tx.description}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-sm font-medium text-gray-900 dark:text-white">{tx.deskripsi}</h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{tx.kategori}</p>
+                      <div className="text-right">
+                        <p className={`text-sm font-medium ${
+                          tx.type === 'INCOME' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                        }`}>
+                          {tx.type === 'INCOME' ? '+' : '-'} {formatCurrency(tx.amount)}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(tx.date)}</p>
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <p className={`text-sm font-medium ${
-                        tx.tipe === 'Pemasukan' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                      }`}>
-                        {tx.tipe === 'Pemasukan' ? '+' : '-'} {formatCurrency(tx.jumlah)}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(tx.tanggal)}</p>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
