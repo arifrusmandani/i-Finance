@@ -2,13 +2,10 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { formatCurrency } from '../lib/utils';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { CalendarIcon, DownloadIcon, FilterIcon, BrainCircuit } from 'lucide-react';
+import { CalendarIcon, DownloadIcon, BrainCircuit } from 'lucide-react';
 import * as Select from '@radix-ui/react-select';
-import ReactMarkdown from 'react-markdown';
 import { reportService } from '../services/report.service';
 
-type PeriodType = 'daily' | 'weekly' | 'monthly' | 'yearly';
-type AnalysisPeriod = 'current_month' | '3_months' | '6_months' | '1_year';
 
 interface CategoryReport {
   category: string;
@@ -126,8 +123,6 @@ Your annual financial performance demonstrates strong growth and effective finan
 };
 
 export default function Reports() {
-  const [period, setPeriod] = useState<PeriodType>('monthly');
-  const [analysisPeriod, setAnalysisPeriod] = useState<AnalysisPeriod>('current_month');
   const [categoryReport, setCategoryReport] = useState<CategoryReport[]>([]);
   const [chartData, setChartData] = useState<MonthlyChartData[]>([]);
   const [selectedYear, setSelectedYear] = useState<number | undefined>(new Date().getFullYear());
@@ -207,29 +202,6 @@ export default function Reports() {
                 <CalendarIcon className="w-4 h-4 text-gray-500" />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Period:</span>
               </div>
-              <Select.Root value={period} onValueChange={(value: PeriodType) => setPeriod(value)}>
-                <Select.Trigger className="inline-flex items-center justify-between px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white min-w-[150px]">
-                  <Select.Value />
-                </Select.Trigger>
-                <Select.Portal>
-                  <Select.Content className="overflow-hidden bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
-                    <Select.Viewport>
-                      <Select.Item value="daily" className="px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                        <Select.ItemText>Daily</Select.ItemText>
-                      </Select.Item>
-                      <Select.Item value="weekly" className="px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                        <Select.ItemText>Weekly</Select.ItemText>
-                      </Select.Item>
-                      <Select.Item value="monthly" className="px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                        <Select.ItemText>Monthly</Select.ItemText>
-                      </Select.Item>
-                      <Select.Item value="yearly" className="px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                        <Select.ItemText>Yearly</Select.ItemText>
-                      </Select.Item>
-                    </Select.Viewport>
-                  </Select.Content>
-                </Select.Portal>
-              </Select.Root>
 
               {/* Year Selection */}
               <Select.Root 
@@ -256,10 +228,6 @@ export default function Reports() {
                 </Select.Portal>
               </Select.Root>
 
-              <button className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">
-                <FilterIcon className="w-4 h-4 mr-2" />
-                More Filters
-              </button>
             </div>
           </CardContent>
         </Card>
@@ -446,29 +414,6 @@ export default function Reports() {
                 <BrainCircuit className="w-5 h-5 text-blue-500" />
                 <CardTitle className="text-lg text-gray-900 dark:text-white">AI Financial Analysis</CardTitle>
               </div>
-              <Select.Root value={analysisPeriod} onValueChange={(value: AnalysisPeriod) => setAnalysisPeriod(value)}>
-                <Select.Trigger className="inline-flex items-center justify-between px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white min-w-[150px]">
-                  <Select.Value />
-                </Select.Trigger>
-                <Select.Portal>
-                  <Select.Content className="overflow-hidden bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
-                    <Select.Viewport>
-                      <Select.Item value="current_month" className="px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                        <Select.ItemText>Current Month</Select.ItemText>
-                      </Select.Item>
-                      <Select.Item value="3_months" className="px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                        <Select.ItemText>Last 3 Months</Select.ItemText>
-                      </Select.Item>
-                      <Select.Item value="6_months" className="px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                        <Select.ItemText>Last 6 Months</Select.ItemText>
-                      </Select.Item>
-                      <Select.Item value="1_year" className="px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                        <Select.ItemText>Last Year</Select.ItemText>
-                      </Select.Item>
-                    </Select.Viewport>
-                  </Select.Content>
-                </Select.Portal>
-              </Select.Root>
             </div>
           </CardHeader>
           <CardContent>
