@@ -27,6 +27,20 @@ interface MonthlyChartResponse {
   data: MonthlyChartData[];
 }
 
+export interface DashboardSummaryItem {
+  label: string;
+  value: number;
+  percent: number;
+  last_month: number;
+}
+
+export interface DashboardSummaryResponse {
+  status: boolean;
+  code: number;
+  message: string;
+  data: DashboardSummaryItem[];
+}
+
 export const reportService = {
   async getCategoryReport(): Promise<ReportResponse> {
     try {
@@ -51,5 +65,15 @@ export const reportService = {
       }
       throw error;
     }
-  }
+  },
+
+  getDashboardSummary: async (): Promise<DashboardSummaryResponse> => {
+    try {
+      const response = await api.get('/report/dashboard-summary');
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch dashboard summary:', error);
+      throw error;
+    }
+  },
 }; 
