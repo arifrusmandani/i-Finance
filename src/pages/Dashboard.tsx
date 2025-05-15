@@ -19,6 +19,7 @@ import RecentTransactions from '../components/RecentTransactions';
 import { formatCurrency } from '../lib/utils';
 import { useState, useEffect } from 'react';
 import { categoryService } from '../services/category.service';
+import { reportService, MostExpenseCategory } from '../services/report.service';
 import { FormattedInput } from '../components/ui/formatted-input';
 
 // Dummy data for charts
@@ -53,26 +54,6 @@ const periodOptions = [
   { label: 'Last 12 Months', value: '12m' }
 ];
 
-// Most expenses data
-const mostExpensesData = [
-  { category: 'Food', amount: 13102, color: '#3b82f6', percentage: 34 },
-  { category: 'Gym', amount: 9636, color: '#ef4444', percentage: 25 },
-  { category: 'Pet', amount: 6424, color: '#22c55e', percentage: 17 },
-  { category: 'Clothes', amount: 6198, color: '#f59e0b', percentage: 16 },
-  { category: 'Other', amount: 3184, color: '#6b7280', percentage: 8 }
-];
-
-interface PieEntry {
-  name: string;
-  value: number;
-  payload: {
-    category: string;
-    amount: number;
-    color: string;
-    percentage: number;
-  };
-}
-
 interface Category {
   label: string;
   value: string;
@@ -86,12 +67,35 @@ interface ApiError {
 }
 
 export default function Dashboard() {
-  const [activeExpense, setActiveExpense] = useState(mostExpensesData[0]);
+  const [activeExpense, setActiveExpense] = useState<MostExpenseCategory | null>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [mostExpensesData, setMostExpensesData] = useState<MostExpenseCategory[]>([]);
+  const [isLoadingMostExpenses, setIsLoadingMostExpenses] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [amount, setAmount] = useState<number>(0);
+
+  useEffect(() => {
+    const fetchMostExpenses = async () => {
+      try {
+        setIsLoadingMostExpenses(true);
+        const response = await reportService.getMostExpenseCategory();
+        if (response.status && response.data) {
+          setMostExpensesData(response.data);
+          if (response.data.length > 0) {
+            setActiveExpense(response.data[0]);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch most expenses:', error);
+      } finally {
+        setIsLoadingMostExpenses(false);
+      }
+    };
+
+    fetchMostExpenses();
+  }, []);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -120,7 +124,7 @@ export default function Dashboard() {
     fetchCategories();
   }, []);
 
-  const handlePieEnter = (_: PieEntry | null, index: number) => {
+  const handlePieEnter = (_: unknown, index: number) => {
     setHoveredIndex(index);
     setActiveExpense(mostExpensesData[index]);
   };
@@ -340,94 +344,104 @@ export default function Dashboard() {
                 </button>
               </CardHeader>
               <CardContent>
-                <div className="relative pt-4">
-                  <div className="relative w-[200px] h-[200px] mx-auto mb-4">
-                    <div className="absolute inset-0 flex items-center justify-center z-10">
-                      <div className={`text-center transform transition-all duration-200 ${
-                        hoveredIndex !== null ? 'scale-110' : 'scale-100'
-                      }`}>
-                        <div className="text-xl font-bold text-gray-900 dark:text-white transition-all duration-200">
-                          {activeExpense.percentage}%
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 transition-all duration-200">
-                          {activeExpense.category}
+                {isLoadingMostExpenses ? (
+                  <div className="flex items-center justify-center h-[300px]">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                  </div>
+                ) : mostExpensesData.length === 0 ? (
+                  <div className="flex items-center justify-center h-[300px] text-gray-500 dark:text-gray-400">
+                    No expense data available
+                  </div>
+                ) : (
+                  <div className="relative pt-4">
+                    <div className="relative w-[200px] h-[200px] mx-auto mb-4">
+                      <div className="absolute inset-0 flex items-center justify-center z-10">
+                        <div className={`text-center transform transition-all duration-200 ${
+                          hoveredIndex !== null ? 'scale-110' : 'scale-100'
+                        }`}>
+                          <div className="text-xl font-bold text-gray-900 dark:text-white transition-all duration-200">
+                            {activeExpense?.percentage.toFixed(1)}%
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400 transition-all duration-200">
+                            {activeExpense?.category_code}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={mostExpensesData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={45}
-                          outerRadius={70}
-                          paddingAngle={3}
-                          dataKey="amount"
-                          onMouseEnter={handlePieEnter}
-                          onMouseLeave={handlePieLeave}
-                          onClick={(_, index) => handlePieEnter(null, index)}
-                        >
-                          {mostExpensesData.map((entry, index) => (
-                            <Cell 
-                              key={`cell-${index}`} 
-                              fill={entry.color}
-                              opacity={hoveredIndex === null || hoveredIndex === index ? 1 : 0.5}
-                              className="cursor-pointer transition-all duration-200"
-                            />
-                          ))}
-                        </Pie>
-                        <Tooltip 
-                          content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                              const data = payload[0].payload;
-                              return (
-                                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
-                                  <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                    {data.category}
-                                  </p>
-                                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                                    Rp {data.amount.toLocaleString('id-ID')}
-                                  </p>
-                                </div>
-                              );
-                            }
-                            return null;
-                          }}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                  <div className="space-y-3">
-                    {mostExpensesData.map((item, index) => (
-                      <div 
-                        key={index} 
-                        className={`flex items-center justify-between cursor-pointer p-2 rounded-lg transition-all duration-200 ${
-                          hoveredIndex === index 
-                            ? 'bg-gray-50 dark:bg-gray-700 scale-105' 
-                            : 'hover:bg-gray-50 dark:hover:bg-gray-700'
-                        }`}
-                        onMouseEnter={() => handlePieEnter(null, index)}
-                        onMouseLeave={handlePieLeave}
-                        onClick={() => handlePieEnter(null, index)}
-                      >
-                        <div className="flex items-center gap-2">
-                          <div 
-                            className="w-2 h-2 rounded-full transition-transform duration-200" 
-                            style={{ 
-                              backgroundColor: item.color,
-                              transform: hoveredIndex === index ? 'scale(1.5)' : 'scale(1)'
-                            }} 
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={mostExpensesData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={45}
+                            outerRadius={70}
+                            paddingAngle={3}
+                            dataKey="amount"
+                            onMouseEnter={handlePieEnter}
+                            onMouseLeave={handlePieLeave}
+                            onClick={(_, index) => handlePieEnter(null, index)}
+                          >
+                            {mostExpensesData.map((entry, index) => (
+                              <Cell 
+                                key={`cell-${index}`} 
+                                fill={entry.color}
+                                opacity={hoveredIndex === null || hoveredIndex === index ? 1 : 0.5}
+                                className="cursor-pointer transition-all duration-200"
+                              />
+                            ))}
+                          </Pie>
+                          <Tooltip 
+                            content={({ active, payload }) => {
+                              if (active && payload && payload.length) {
+                                const data = payload[0].payload;
+                                return (
+                                  <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+                                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                      {data.category_name}
+                                    </p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                      {formatCurrency(data.amount)}
+                                    </p>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
                           />
-                          <span className="text-sm text-gray-700 dark:text-gray-300">{item.category}</span>
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="space-y-3">
+                      {mostExpensesData.map((item, index) => (
+                        <div 
+                          key={index} 
+                          className={`flex items-center justify-between cursor-pointer p-2 rounded-lg transition-all duration-200 ${
+                            hoveredIndex === index 
+                              ? 'bg-gray-50 dark:bg-gray-700 scale-105' 
+                              : 'hover:bg-gray-50 dark:hover:bg-gray-700'
+                          }`}
+                          onMouseEnter={() => handlePieEnter(null, index)}
+                          onMouseLeave={handlePieLeave}
+                          onClick={() => handlePieEnter(null, index)}
+                        >
+                          <div className="flex items-center gap-2">
+                            <div 
+                              className="w-2 h-2 rounded-full transition-transform duration-200" 
+                              style={{ 
+                                backgroundColor: item.color,
+                                transform: hoveredIndex === index ? 'scale(1.5)' : 'scale(1)'
+                              }} 
+                            />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">{item.category_name}</span>
+                          </div>
+                          <span className="text-sm font-medium text-gray-900 dark:text-white">
+                            {formatCurrency(item.amount)}
+                          </span>
                         </div>
-                        <span className="text-sm font-medium text-gray-900 dark:text-white">
-                          Rp {item.amount.toLocaleString('id-ID')}
-                        </span>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </CardContent>
             </Card>
 
