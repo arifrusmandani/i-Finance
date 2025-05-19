@@ -3,24 +3,11 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { formatCurrency, formatDate } from '../lib/utils';
 import { ArrowDownIcon, ArrowUpIcon, FilterIcon, PlusIcon, SearchIcon, XIcon } from 'lucide-react';
-import { transactionService } from '../services/transaction.service';
+import { transactionService, Transaction as ServiceTransaction, TransactionSummary } from '../services/transaction.service';
 import { categoryService } from '../services/category.service';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Select from '@radix-ui/react-select';
 import { toast } from 'sonner';
-
-interface Transaction {
-  id: number;
-  amount: number;
-  description: string;
-  type: 'EXPENSE' | 'INCOME';
-  category_code: string;
-  date: string;
-  user_id: number;
-  category_name: string;
-  category_icon: string;
-  created_at: string;
-}
 
 interface TransactionForm {
   amount: string;
@@ -37,24 +24,27 @@ interface Category {
   type: 'EXPENSE' | 'INCOME';
 }
 
-// Dummy categories data - replace with actual API call
-const categories = [
-  { code: 'SALARY', name: 'Salary', icon: '💰', type: 'INCOME' },
-  { code: 'BONUS', name: 'Bonus', icon: '🎁', type: 'INCOME' },
-  { code: 'FOOD', name: 'Food & Beverage', icon: '🍔', type: 'EXPENSE' },
-  { code: 'TRANSPORT', name: 'Transportation', icon: '🚗', type: 'EXPENSE' },
-  { code: 'HOUSING', name: 'Housing', icon: '🏠', type: 'EXPENSE' },
-  { code: 'UTILITIES', name: 'Utilities', icon: '⚡', type: 'EXPENSE' },
-];
+interface ApiCategory {
+  code: string;
+  name: string;
+  icon: string;
+  type: string;
+}
 
 export default function Transactions() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<ServiceTransaction[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
+  const [summary, setSummary] = useState<TransactionSummary>({
+    total_income: 0,
+    total_expense: 0,
+    total_balance: 0,
+  });
+  const [isLoadingSummary, setIsLoadingSummary] = useState(true);
   const [formData, setFormData] = useState<TransactionForm>({
     amount: '',
     description: '',
@@ -69,7 +59,14 @@ export default function Transactions() {
       try {
         const response = await categoryService.getCategories();
         if (response.status && response.data) {
-          setCategories(response.data);
+          // Convert API category type to our Category type
+          const formattedCategories: Category[] = response.data.map((cat: ApiCategory) => ({
+            code: cat.code,
+            name: cat.name,
+            icon: cat.icon,
+            type: cat.type as 'EXPENSE' | 'INCOME',
+          }));
+          setCategories(formattedCategories);
         }
       } catch (error) {
         console.error('Failed to fetch categories:', error);
@@ -85,14 +82,24 @@ export default function Transactions() {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await transactionService.getAllTransactions();
-        if (response.status && response.data) {
-          setTransactions(response.data);
+        const [transactionsResponse, summaryResponse] = await Promise.all([
+          transactionService.getAllTransactions(),
+          transactionService.getTransactionSummary(),
+        ]);
+
+        if (transactionsResponse.status && transactionsResponse.data) {
+          setTransactions(transactionsResponse.data);
+        }
+
+        if (summaryResponse.status && summaryResponse.data) {
+          setSummary(summaryResponse.data);
         }
       } catch (error) {
         console.error('Failed to fetch transactions:', error);
+        toast.error('Failed to load transactions');
       } finally {
         setIsLoading(false);
+        setIsLoadingSummary(false);
       }
     };
 
@@ -100,19 +107,9 @@ export default function Transactions() {
   }, []);
 
   const filteredTransactions = transactions.filter(tx =>
-    tx.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (tx.description?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
     tx.category_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const totalIncome = transactions
-    .filter(tx => tx.type === 'INCOME')
-    .reduce((sum, tx) => sum + tx.amount, 0);
-
-  const totalExpense = transactions
-    .filter(tx => tx.type === 'EXPENSE')
-    .reduce((sum, tx) => sum + tx.amount, 0);
-
-  const totalBalance = totalIncome - totalExpense;
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -149,10 +146,17 @@ export default function Transactions() {
 
     try {
       setIsSubmitting(true);
-      const response = await transactionService.createTransaction({
-        ...formData,
-        amount: parseInt(formData.amount) || 0,
-      });
+      
+      // Format the data according to API requirements
+      const transactionData = {
+        amount: parseInt(formData.amount),
+        type: formData.type,
+        category_code: formData.category_code,
+        date: formData.date,
+        ...(formData.description && { description: formData.description }),
+      };
+
+      const response = await transactionService.createTransaction(transactionData);
       
       if (response.status) {
         toast.success('Transaction added successfully', {
@@ -160,6 +164,7 @@ export default function Transactions() {
           duration: 3000,
         });
 
+        // Refresh transactions list
         const updatedTransactions = await transactionService.getAllTransactions();
         if (updatedTransactions.status && updatedTransactions.data) {
           setTransactions(updatedTransactions.data);
@@ -171,6 +176,11 @@ export default function Transactions() {
           type: 'EXPENSE',
           category_code: '',
           date: new Date().toISOString().split('T')[0],
+        });
+      } else {
+        toast.error('Failed to add transaction', {
+          description: response.message || 'Please try again later',
+          duration: 3000,
         });
       }
     } catch (error) {
@@ -213,10 +223,14 @@ export default function Transactions() {
               <CardTitle className="text-lg text-gray-900 dark:text-white">Total Income</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center">
-                <ArrowUpIcon className="w-4 h-4 text-green-500 mr-2" />
-                <span className="text-2xl font-bold text-green-500">{formatCurrency(totalIncome)}</span>
-              </div>
+              {isLoadingSummary ? (
+                <div className="h-8 w-24 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
+              ) : (
+                <div className="flex items-center">
+                  <ArrowUpIcon className="w-4 h-4 text-green-500 mr-2" />
+                  <span className="text-2xl font-bold text-green-500">{formatCurrency(summary.total_income)}</span>
+                </div>
+              )}
             </CardContent>
           </Card>
           <Card className="bg-white dark:bg-gray-800">
@@ -224,10 +238,14 @@ export default function Transactions() {
               <CardTitle className="text-lg text-gray-900 dark:text-white">Total Expense</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center">
-                <ArrowDownIcon className="w-4 h-4 text-red-500 mr-2" />
-                <span className="text-2xl font-bold text-red-500">{formatCurrency(totalExpense)}</span>
-              </div>
+              {isLoadingSummary ? (
+                <div className="h-8 w-24 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
+              ) : (
+                <div className="flex items-center">
+                  <ArrowDownIcon className="w-4 h-4 text-red-500 mr-2" />
+                  <span className="text-2xl font-bold text-red-500">{formatCurrency(summary.total_expense)}</span>
+                </div>
+              )}
             </CardContent>
           </Card>
           <Card className="bg-white dark:bg-gray-800">
@@ -235,14 +253,18 @@ export default function Transactions() {
               <CardTitle className="text-lg text-gray-900 dark:text-white">Total Balance</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center">
-                <span className={`w-4 h-4 mr-2 ${totalBalance >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  {totalBalance >= 0 ? '+' : '-'}
-                </span>
-                <span className={`text-2xl font-bold ${totalBalance >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  {formatCurrency(Math.abs(totalBalance))}
-                </span>
-              </div>
+              {isLoadingSummary ? (
+                <div className="h-8 w-24 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
+              ) : (
+                <div className="flex items-center">
+                  <span className={`w-4 h-4 mr-2 ${summary.total_balance >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    {summary.total_balance >= 0 ? '+' : '-'}
+                  </span>
+                  <span className={`text-2xl font-bold ${summary.total_balance >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    {formatCurrency(Math.abs(summary.total_balance))}
+                  </span>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

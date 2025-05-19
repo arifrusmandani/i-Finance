@@ -21,6 +21,8 @@ import { useState, useEffect } from 'react';
 import { categoryService } from '../services/category.service';
 import { reportService, MostExpenseCategory } from '../services/report.service';
 import { FormattedInput } from '../components/ui/formatted-input';
+import { transactionService } from '../services/transaction.service';
+import { toast } from 'sonner';
 
 // Dummy data for charts
 const outcomeData = [
@@ -66,6 +68,13 @@ interface ApiError {
   status?: boolean;
 }
 
+interface QuickTransactionResponse {
+  status: boolean;
+  code: number;
+  message: string;
+  data: Record<string, unknown>;
+}
+
 export default function Dashboard() {
   const [activeExpense, setActiveExpense] = useState<MostExpenseCategory | null>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -75,6 +84,8 @@ export default function Dashboard() {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [amount, setAmount] = useState<number>(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [refreshRecentTransactions, setRefreshRecentTransactions] = useState(0);
 
   useEffect(() => {
     const fetchMostExpenses = async () => {
@@ -131,6 +142,50 @@ export default function Dashboard() {
 
   const handlePieLeave = () => {
     setHoveredIndex(null);
+  };
+
+  const handleQuickTransaction = async () => {
+    if (!selectedCategory || !amount) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const response = await transactionService.createTransaction({
+        amount: amount,
+        type: 'EXPENSE',
+        category_code: selectedCategory,
+        date: new Date().toISOString().split('T')[0],
+      });
+
+      if (response.status) {
+        toast.success('Transaction added successfully', {
+          description: 'Your transaction has been recorded',
+          duration: 3000,
+        });
+
+        // Reset form
+        setAmount(0);
+        setSelectedCategory(categories[0]?.value || '');
+
+        // Trigger refresh for RecentTransactions
+        setRefreshRecentTransactions(prev => prev + 1);
+      } else {
+        toast.error('Failed to add transaction', {
+          description: response.message || 'Please try again later',
+          duration: 3000,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to create transaction:', error);
+      toast.error('Failed to add transaction', {
+        description: error instanceof Error ? error.message : 'Please try again later',
+        duration: 3000,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -454,7 +509,7 @@ export default function Dashboard() {
                 <Select 
                   value={selectedCategory} 
                   onValueChange={setSelectedCategory}
-                  disabled={isLoadingCategories}
+                  disabled={isLoadingCategories || isSubmitting}
                 >
                   <SelectTrigger className="w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700">
                     {isLoadingCategories ? (
@@ -486,16 +541,28 @@ export default function Dashboard() {
                   placeholder="Amount"
                   prefix="Rp"
                   className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700"
+                  disabled={isSubmitting}
                 />
 
-                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                  Add
+                <Button 
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={handleQuickTransaction}
+                  disabled={isSubmitting || !selectedCategory || !amount}
+                >
+                  {isSubmitting ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Saving...</span>
+                    </div>
+                  ) : (
+                    'Add'
+                  )}
                 </Button>
               </CardContent>
             </Card>
 
             {/* Recent Transactions moved to sidebar */}
-            <RecentTransactions />
+            <RecentTransactions key={refreshRecentTransactions} />
           </div>
         </div>
       </div>
