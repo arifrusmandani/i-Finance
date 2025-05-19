@@ -19,26 +19,13 @@ import RecentTransactions from '../components/RecentTransactions';
 import { formatCurrency } from '../lib/utils';
 import { useState, useEffect } from 'react';
 import { categoryService } from '../services/category.service';
-import { reportService, MostExpenseCategory } from '../services/report.service';
+import { reportService, MostExpenseCategory, IncomeCategory, ExpenseCategory } from '../services/report.service';
 import { FormattedInput } from '../components/ui/formatted-input';
 import { transactionService } from '../services/transaction.service';
 import { toast } from 'sonner';
+import type { TooltipProps } from 'recharts';
 
 // Dummy data for charts
-const outcomeData = [
-  { name: 'Investment', value: 2313, color: '#4ade80' },
-  { name: 'Transport', value: 1281, color: '#fbbf24' },
-  { name: 'Food', value: 629, color: '#60a5fa' },
-  { name: 'Other', value: 501, color: '#93c5fd' }
-];
-
-const incomeData = [
-  { name: 'Dividends', value: 3103, color: '#fbbf24' },
-  { name: 'Salary', value: 2268, color: '#60a5fa' },
-  { name: 'Transactions', value: 1738, color: '#4ade80' },
-  { name: 'Other', value: 911, color: '#c084fc' }
-];
-
 const cashflowData = [
   { day: 'Sun', income: 1000, expense: 700 },
   { day: 'Mon', income: 800, expense: 400 },
@@ -68,11 +55,26 @@ interface ApiError {
   status?: boolean;
 }
 
-interface QuickTransactionResponse {
-  status: boolean;
-  code: number;
-  message: string;
-  data: Record<string, unknown>;
+interface CategoryPieData {
+  category_name: string;
+  amount: number;
+  color: string;
+  index: number;
+  type: string;
+}
+
+// Custom simple tooltip for pie charts
+function SimplePieTooltip({ active, payload }: TooltipProps<any, number>) {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload as CategoryPieData;
+    return (
+      <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+        <p className="text-sm font-medium text-gray-900 dark:text-white">{data.category_name}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">{formatCurrency(data.amount)}</p>
+      </div>
+    );
+  }
+  return null;
 }
 
 export default function Dashboard() {
@@ -80,6 +82,10 @@ export default function Dashboard() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [mostExpensesData, setMostExpensesData] = useState<MostExpenseCategory[]>([]);
   const [isLoadingMostExpenses, setIsLoadingMostExpenses] = useState(true);
+  const [incomeCategories, setIncomeCategories] = useState<IncomeCategory[]>([]);
+  const [isLoadingIncomeCategories, setIsLoadingIncomeCategories] = useState(true);
+  const [expenseCategories, setExpenseCategories] = useState<ExpenseCategory[]>([]);
+  const [isLoadingExpenseCategories, setIsLoadingExpenseCategories] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
@@ -106,6 +112,44 @@ export default function Dashboard() {
     };
 
     fetchMostExpenses();
+  }, []);
+
+  useEffect(() => {
+    const fetchIncomeCategories = async () => {
+      try {
+        setIsLoadingIncomeCategories(true);
+        const response = await reportService.getIncomeCategories();
+        if (response.status && response.data) {
+          setIncomeCategories(response.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch income categories:', error);
+        toast.error('Failed to load income categories');
+      } finally {
+        setIsLoadingIncomeCategories(false);
+      }
+    };
+
+    fetchIncomeCategories();
+  }, []);
+
+  useEffect(() => {
+    const fetchExpenseCategories = async () => {
+      try {
+        setIsLoadingExpenseCategories(true);
+        const response = await reportService.getExpenseCategories();
+        if (response.status && response.data) {
+          setExpenseCategories(response.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch expense categories:', error);
+        toast.error('Failed to load expense categories');
+      } finally {
+        setIsLoadingExpenseCategories(false);
+      }
+    };
+
+    fetchExpenseCategories();
   }, []);
 
   useEffect(() => {
@@ -188,6 +232,10 @@ export default function Dashboard() {
     }
   };
 
+  const totalIncomeAmount = incomeCategories.reduce((sum, cat) => sum + cat.amount, 0);
+  const totalExpenseAmount = expenseCategories.reduce((sum, cat) => sum + cat.amount, 0);
+  const currentMonth = new Date().toLocaleString('default', { month: 'long' });
+
   return (
     <div className="min-h-screen">
       <div className="p-4 md:p-6">
@@ -203,40 +251,53 @@ export default function Dashboard() {
                 <CardHeader>
                   <CardTitle className="text-lg">Outcome categories:</CardTitle>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    4,724 USD in March
+                    {formatCurrency(totalExpenseAmount)} in {currentMonth}
                   </p>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={outcomeData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={60}
-                          outerRadius={80}
-                          paddingAngle={5}
-                          dataKey="value"
-                        >
-                          {outcomeData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                  <div className="space-y-2 mt-4">
-                    {outcomeData.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                          <span className="text-sm text-gray-600 dark:text-gray-300">{item.name}</span>
-                        </div>
-                        <span className="text-sm font-medium">{formatCurrency(item.value)}</span>
+                  {isLoadingExpenseCategories ? (
+                    <div className="h-[300px] flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    </div>
+                  ) : expenseCategories.length === 0 ? (
+                    <div className="h-[300px] flex items-center justify-center text-gray-500 dark:text-gray-400">
+                      No expense data available
+                    </div>
+                  ) : (
+                    <>
+                      <div className="h-[300px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={expenseCategories.map((cat, index) => ({ ...cat, index, type: 'EXPENSE' }))}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={60}
+                              outerRadius={80}
+                              paddingAngle={5}
+                              dataKey="amount"
+                            >
+                              {expenseCategories.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.color} />
+                              ))}
+                            </Pie>
+                            <Tooltip content={<SimplePieTooltip />} />
+                          </PieChart>
+                        </ResponsiveContainer>
                       </div>
-                    ))}
-                  </div>
+                      <div className="space-y-2 mt-4">
+                        {expenseCategories.map((item, index) => (
+                          <div key={index} className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                              <span className="text-sm text-gray-600 dark:text-gray-300">{item.category_name}</span>
+                            </div>
+                            <span className="text-sm font-medium">{formatCurrency(item.amount)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </CardContent>
               </Card>
 
@@ -245,40 +306,53 @@ export default function Dashboard() {
                 <CardHeader>
                   <CardTitle className="text-lg">Income categories:</CardTitle>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    7,250 USD in March
+                    {formatCurrency(totalIncomeAmount)} in {currentMonth}
                   </p>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={incomeData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={60}
-                          outerRadius={80}
-                          paddingAngle={5}
-                          dataKey="value"
-                        >
-                          {incomeData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                  <div className="space-y-2 mt-4">
-                    {incomeData.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                          <span className="text-sm text-gray-600 dark:text-gray-300">{item.name}</span>
-                        </div>
-                        <span className="text-sm font-medium">{formatCurrency(item.value)}</span>
+                  {isLoadingIncomeCategories ? (
+                    <div className="h-[300px] flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    </div>
+                  ) : incomeCategories.length === 0 ? (
+                    <div className="h-[300px] flex items-center justify-center text-gray-500 dark:text-gray-400">
+                      No income data available
+                    </div>
+                  ) : (
+                    <>
+                      <div className="h-[300px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={incomeCategories.map((cat, index) => ({ ...cat, index, type: 'INCOME' }))}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={60}
+                              outerRadius={80}
+                              paddingAngle={5}
+                              dataKey="amount"
+                            >
+                              {incomeCategories.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.color} />
+                              ))}
+                            </Pie>
+                            <Tooltip content={<SimplePieTooltip />} />
+                          </PieChart>
+                        </ResponsiveContainer>
                       </div>
-                    ))}
-                  </div>
+                      <div className="space-y-2 mt-4">
+                        {incomeCategories.map((item, index) => (
+                          <div key={index} className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                              <span className="text-sm text-gray-600 dark:text-gray-300">{item.category_name}</span>
+                            </div>
+                            <span className="text-sm font-medium">{formatCurrency(item.amount)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             </div>

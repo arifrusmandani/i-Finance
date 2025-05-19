@@ -45,8 +45,22 @@ export interface MostExpenseCategory {
   category_code: string;
   category_name: string;
   amount: number;
-  color: string;
   percentage: number;
+  color: string;
+}
+
+export interface IncomeCategory {
+  category_code: string;
+  category_name: string;
+  amount: number;
+  color: string;
+}
+
+export interface IncomeCategoriesResponse {
+  status: boolean;
+  code: number;
+  message: string;
+  data: IncomeCategory[];
 }
 
 export interface MostExpenseResponse {
@@ -54,6 +68,20 @@ export interface MostExpenseResponse {
   code: number;
   message: string;
   data: MostExpenseCategory[];
+}
+
+export interface ExpenseCategory {
+  category_code: string;
+  category_name: string;
+  amount: number;
+  color: string;
+}
+
+export interface ExpenseCategoriesResponse {
+  status: boolean;
+  code: number;
+  message: string;
+  data: ExpenseCategory[];
 }
 
 export const reportService = {
@@ -98,6 +126,26 @@ export const reportService = {
       return response.data;
     } catch (error) {
       console.error('Failed to fetch most expense category:', error);
+      throw error;
+    }
+  },
+
+  getIncomeCategories: async (): Promise<IncomeCategoriesResponse> => {
+    try {
+      const response = await api.get('/report/income-categories');
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch income categories:', error);
+      throw error;
+    }
+  },
+
+  getExpenseCategories: async (): Promise<ExpenseCategoriesResponse> => {
+    try {
+      const response = await api.get('/report/expense-categories');
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch expense categories:', error);
       throw error;
     }
   },
