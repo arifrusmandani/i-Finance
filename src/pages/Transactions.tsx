@@ -8,6 +8,7 @@ import { categoryService } from '../services/category.service';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Select from '@radix-ui/react-select';
 import { toast } from 'sonner';
+import { FormattedInput } from '../components/ui/formatted-input';
 
 interface TransactionForm {
   amount: string;
@@ -54,32 +55,6 @@ export default function Transactions() {
   });
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      setIsLoadingCategories(true);
-      try {
-        const response = await categoryService.getCategories();
-        if (response.status && response.data) {
-          // Convert API category type to our Category type
-          const formattedCategories: Category[] = response.data.map((cat: ApiCategory) => ({
-            code: cat.code,
-            name: cat.name,
-            icon: cat.icon,
-            type: cat.type as 'EXPENSE' | 'INCOME',
-          }));
-          setCategories(formattedCategories);
-        }
-      } catch (error) {
-        console.error('Failed to fetch categories:', error);
-        toast.error('Failed to load categories');
-      } finally {
-        setIsLoadingCategories(false);
-      }
-    };
-
-    fetchCategories();
-  }, []);
-
-  useEffect(() => {
     const fetchTransactions = async () => {
       try {
         const [transactionsResponse, summaryResponse] = await Promise.all([
@@ -106,25 +81,46 @@ export default function Transactions() {
     fetchTransactions();
   }, []);
 
+  const handleTypeChange = async (type: 'INCOME' | 'EXPENSE') => {
+    setFormData(prev => ({ ...prev, type, category_code: '' })); // Reset category when type changes
+    setIsLoadingCategories(true);
+    try {
+      const response = await categoryService.getCategories(type);
+      if (response.status && response.data) {
+        const formattedCategories: Category[] = response.data.map((cat: ApiCategory) => ({
+          code: cat.code,
+          name: cat.name,
+          icon: cat.icon,
+          type: cat.type as 'EXPENSE' | 'INCOME',
+        }));
+        setCategories(formattedCategories);
+      }
+    } catch (error) {
+      console.error('Failed to fetch categories:', error);
+      toast.error('Failed to load categories');
+    } finally {
+      setIsLoadingCategories(false);
+    }
+  };
+
+  // Remove the initial categories fetch from useEffect since we'll fetch when type changes
+  useEffect(() => {
+    // Initial fetch for default type (EXPENSE)
+    handleTypeChange('EXPENSE');
+  }, []);
+
   const filteredTransactions = transactions.filter(tx =>
     (tx.description?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
     tx.category_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    const value = e.target.value;
-    const numericValue = value.replace(/\D/g, '');
-    setFormData(prev => ({ ...prev, amount: numericValue }));
+  const handleAmountChange = (value: number) => {
+    setFormData(prev => ({ ...prev, amount: value.toString() }));
   };
 
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     setFormData(prev => ({ ...prev, description: e.target.value }));
-  };
-
-  const handleTypeChange = (type: 'INCOME' | 'EXPENSE') => {
-    setFormData(prev => ({ ...prev, type }));
   };
 
   const handleCategoryChange = (value: string) => {
@@ -341,22 +337,14 @@ export default function Transactions() {
                   <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Amount
                   </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
-                      Rp
-                    </span>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      value={formData.amount}
-                      onChange={handleAmountChange}
-                      onFocus={(e) => e.target.select()}
-                      className="w-full pl-12 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="0"
-                      required
-                    />
-                  </div>
+                  <FormattedInput
+                    value={parseInt(formData.amount) || 0}
+                    onChange={handleAmountChange}
+                    placeholder="0"
+                    prefix="Rp"
+                    className="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
+                    required
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -379,27 +367,25 @@ export default function Transactions() {
                     </Select.Trigger>
                     <Select.Portal>
                       <Select.Content 
-                        className="overflow-hidden bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700"
+                        className="overflow-hidden bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 w-[var(--radix-select-trigger-width)]"
                         position="popper"
                         sideOffset={5}
                       >
                         <Select.Viewport>
-                          {categories
-                            .filter(cat => cat.type === formData.type)
-                            .map((category) => (
-                              <Select.Item
-                                key={category.code}
-                                value={category.code}
-                                className="px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
-                              >
-                                <Select.ItemText>
-                                  <div className="flex items-center gap-2">
-                                    <span>{category.icon}</span>
-                                    <span>{category.name}</span>
-                                  </div>
-                                </Select.ItemText>
-                              </Select.Item>
-                            ))}
+                          {categories.map((category) => (
+                            <Select.Item
+                              key={category.code}
+                              value={category.code}
+                              className="px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer w-full"
+                            >
+                              <Select.ItemText>
+                                <div className="flex items-center gap-2">
+                                  <span>{category.icon}</span>
+                                  <span>{category.name}</span>
+                                </div>
+                              </Select.ItemText>
+                            </Select.Item>
+                          ))}
                         </Select.Viewport>
                       </Select.Content>
                     </Select.Portal>
