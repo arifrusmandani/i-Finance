@@ -18,7 +18,7 @@ import { transactionService, Transaction as ServiceTransaction, TransactionSumma
 import { categoryService } from '../services/category.service';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Select from '@radix-ui/react-select';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
 import { FormattedInput } from '../components/ui/formatted-input';
 import * as XLSX from 'xlsx';
 
@@ -437,12 +437,47 @@ export default function Transactions() {
 
     try {
       setExcelUpload(prev => ({ ...prev, isUploading: true }));
-      // TODO: Add upload logic here
-      toast.success('Transactions imported successfully');
-      setExcelUpload(prev => ({ ...prev, isOpen: false }));
+      
+      const response = await transactionService.bulkUploadTransactions(excelUpload.file);
+      
+      if (response.status) {
+        toast.success(response.message || 'Transactions imported successfully', {
+          description: `${response.data.total_rows} rows imported successfully`,
+          duration: 5000,
+        });
+
+        // Refresh transactions list
+        const updatedTransactions = await transactionService.getAllTransactions();
+        if (updatedTransactions.status && updatedTransactions.data) {
+          setTransactions(updatedTransactions.data);
+        }
+
+        // Refresh summary
+        const summaryResponse = await transactionService.getTransactionSummary();
+        if (summaryResponse.status && summaryResponse.data) {
+          setSummary(summaryResponse.data);
+        }
+
+        // Reset form and close popup
+        setExcelUpload({
+          isOpen: false,
+          file: null,
+          preview: [],
+          isUploading: false,
+          error: null
+        });
+      } else {
+        toast.error(response.message || 'Failed to import transactions', {
+          description: 'Please check your file and try again',
+          duration: 5000,
+        });
+      }
     } catch (error) {
       console.error('Failed to upload transactions:', error);
-      toast.error('Failed to import transactions');
+      toast.error('Failed to import transactions', {
+        description: error instanceof Error ? error.message : 'Please try again later',
+        duration: 5000,
+      });
     } finally {
       setExcelUpload(prev => ({ ...prev, isUploading: false }));
     }
@@ -450,6 +485,7 @@ export default function Transactions() {
 
   return (
     <div className="min-h-screen">
+      <Toaster position="top-right" richColors />
       <div className="p-4 md:p-6 space-y-6">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -765,21 +801,30 @@ export default function Transactions() {
                     onChange={handleFileChange}
                     className="hidden"
                     id="excel-upload"
+                    disabled={excelUpload.isUploading}
                   />
                   <label 
                     htmlFor="excel-upload"
-                    className="cursor-pointer"
+                    className={`cursor-pointer ${excelUpload.isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <div className="space-y-3">
                       <div className="mx-auto w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                        <UploadIcon className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+                        {excelUpload.isUploading ? (
+                          <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                          <UploadIcon className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+                        )}
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-900 dark:text-white">
-                          {excelUpload.file ? excelUpload.file.name : 'Drop your Excel file here'}
+                          {excelUpload.isUploading 
+                            ? 'Uploading...' 
+                            : excelUpload.file 
+                              ? excelUpload.file.name 
+                              : 'Drop your Excel file here'}
                         </p>
                         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                          or click to browse
+                          {excelUpload.isUploading ? 'Please wait...' : 'or click to browse'}
                         </p>
                       </div>
                     </div>
@@ -837,7 +882,13 @@ export default function Transactions() {
                 <div className="flex gap-3 pt-4">
                   <button
                     type="button"
-                    onClick={() => setExcelUpload(prev => ({ ...prev, isOpen: false }))}
+                    onClick={() => setExcelUpload({
+                      isOpen: false,
+                      file: null,
+                      preview: [],
+                      isUploading: false,
+                      error: null
+                    })}
                     className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
                     disabled={excelUpload.isUploading}
                   >

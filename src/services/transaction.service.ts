@@ -125,4 +125,25 @@ export const transactionService = {
       throw new Error('An unexpected error occurred');
     }
   },
+
+  bulkUploadTransactions: async (file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await api.post('/transaction/bulk-upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      const apiError = error as ApiError;
+      if (apiError.response?.data) {
+        throw apiError.response.data;
+      }
+      throw error;
+    }
+  },
 }; 
