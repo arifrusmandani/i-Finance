@@ -2,13 +2,25 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { formatCurrency, formatDate } from '../lib/utils';
-import { ArrowDownIcon, ArrowUpIcon, FilterIcon, PlusIcon, SearchIcon, XIcon } from 'lucide-react';
+import { 
+  ArrowDownIcon, 
+  ArrowUpIcon, 
+  FilterIcon, 
+  PlusIcon, 
+  SearchIcon, 
+  XIcon,
+  UploadIcon,
+  DownloadIcon,
+  FileIcon,
+  AlertCircleIcon
+} from 'lucide-react';
 import { transactionService, Transaction as ServiceTransaction, TransactionSummary } from '../services/transaction.service';
 import { categoryService } from '../services/category.service';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Select from '@radix-ui/react-select';
 import { toast } from 'sonner';
 import { FormattedInput } from '../components/ui/formatted-input';
+import * as XLSX from 'xlsx';
 
 interface TransactionForm {
   amount: string;
@@ -32,6 +44,141 @@ interface ApiCategory {
   type: string;
 }
 
+interface ExcelUploadState {
+  isOpen: boolean;
+  file: File | null;
+  preview: {
+    amount: number;
+    type: 'INCOME' | 'EXPENSE';
+    description: string;
+    date: string;
+    category_code: string;
+  }[];
+  isUploading: boolean;
+  error: string | null;
+}
+
+const parseExcelFile = async (file: File) => {
+  return new Promise<XLSX.WorkBook>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = e.target?.result;
+        const workbook = XLSX.read(data, { type: 'binary' });
+        resolve(workbook);
+      } catch (error) {
+        reject(error);
+      }
+    };
+    reader.onerror = (error) => reject(error);
+    reader.readAsBinaryString(file);
+  });
+};
+
+const validateExcelData = (data: Record<string, string | number>[]) => {
+  const requiredHeaders = ['amount', 'type', 'description', 'date', 'category_code'];
+  const headers = Object.keys(data[0] || {});
+
+  // Check if all required headers exist
+  const missingHeaders = requiredHeaders.filter(header => !headers.includes(header));
+  if (missingHeaders.length > 0) {
+    throw new Error(`Missing required headers: ${missingHeaders.join(', ')}`);
+  }
+
+  // Filter out completely empty rows first
+  const nonEmptyRows = data.filter(row => {
+    // Check if all required fields are empty
+    const isEmptyRow = requiredHeaders.every(header => {
+      const value = row[header];
+      return value === null || value === undefined || value === '' || value === ' ';
+    });
+    return !isEmptyRow;
+  });
+
+  // Validate data types and format
+  const validatedData = nonEmptyRows.map((row, index) => {
+    const errors: string[] = [];
+
+    // Check for empty required fields
+    requiredHeaders.forEach(header => {
+      const value = row[header];
+      if (value === null || value === undefined || value === '' || value === ' ') {
+        errors.push(`Row ${index + 2}: ${header} is required`);
+      }
+    });
+
+    // Validate amount
+    if (row.amount) {
+      if (isNaN(Number(row.amount))) {
+        errors.push(`Row ${index + 2}: Amount must be a number`);
+      }
+    }
+
+    // Validate type
+    if (row.type) {
+      if (!['INCOME', 'EXPENSE'].includes(row.type as string)) {
+        errors.push(`Row ${index + 2}: Type must be either INCOME or EXPENSE`);
+      }
+    }
+
+    // Validate and format date
+    let formattedDate: string;
+    const dateValue = row.date;
+
+    try {
+      // Handle Excel date (number)
+      if (typeof dateValue === 'number') {
+        // Convert Excel date number to YYYY-MM-DD
+        const date = new Date((dateValue - 25569) * 86400 * 1000);
+        formattedDate = date.toISOString().split('T')[0];
+      } 
+      // Handle string date
+      else if (typeof dateValue === 'string') {
+        // Check for DD/MM/YYYY format
+        if (dateValue.includes('/')) {
+          const [day, month, year] = dateValue.split('/');
+          if (day.length !== 2 || month.length !== 2 || year.length !== 4) {
+            errors.push(`Row ${index + 2}: Date must be in DD/MM/YYYY format`);
+          } else {
+            formattedDate = `${year}-${month}-${day}`;
+          }
+        } 
+        // Check for YYYY-MM-DD format
+        else {
+          const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+          if (!dateRegex.test(dateValue)) {
+            errors.push(`Row ${index + 2}: Date must be in YYYY-MM-DD format`);
+          } else {
+            formattedDate = dateValue;
+          }
+        }
+      } else {
+        errors.push(`Row ${index + 2}: Invalid date format`);
+      }
+    } catch {
+      errors.push(`Row ${index + 2}: Invalid date value`);
+    }
+
+    if (errors.length > 0) {
+      throw new Error(errors.join('\n'));
+    }
+
+    return {
+      amount: Number(row.amount),
+      type: row.type as 'INCOME' | 'EXPENSE',
+      description: (row.description as string) || '',
+      date: formattedDate!,
+      category_code: row.category_code as string
+    };
+  });
+
+  if (validatedData.length === 0) {
+    throw new Error('No valid data found in the Excel file');
+  }
+
+  return validatedData;
+};
+
 export default function Transactions() {
   const [transactions, setTransactions] = useState<ServiceTransaction[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -52,6 +199,13 @@ export default function Transactions() {
     type: 'EXPENSE',
     category_code: '',
     date: new Date().toISOString().split('T')[0],
+  });
+  const [excelUpload, setExcelUpload] = useState<ExcelUploadState>({
+    isOpen: false,
+    file: null,
+    preview: [],
+    isUploading: false,
+    error: null
   });
 
   useEffect(() => {
@@ -190,9 +344,109 @@ export default function Transactions() {
     }
   };
 
-  // const TransactionForm = () => (
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' && 
+          file.type !== 'application/vnd.ms-excel') {
+        setExcelUpload(prev => ({ ...prev, error: 'Please upload a valid Excel file (.xlsx or .xls)' }));
+        return;
+      }
+
+      try {
+        setExcelUpload(prev => ({ ...prev, file, error: null }));
+        const workbook = await parseExcelFile(file);
+        
+        // Check if 'transaction' sheet exists
+        if (!workbook.SheetNames.includes('transaction')) {
+          throw new Error('Sheet "transaction" not found in the Excel file');
+        }
+
+        // Get the transaction sheet
+        const worksheet = workbook.Sheets['transaction'];
+        const data = XLSX.utils.sheet_to_json(worksheet) as Record<string, string | number>[];
+
+        // Validate and transform data
+        const validatedData = validateExcelData(data);
+        
+        setExcelUpload(prev => ({ 
+          ...prev, 
+          preview: validatedData,
+          error: null 
+        }));
+      } catch (error) {
+        console.error('Error parsing Excel file:', error);
+        setExcelUpload(prev => ({ 
+          ...prev, 
+          error: error instanceof Error ? error.message : 'Failed to parse Excel file' 
+        }));
+      }
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     
-  // );
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      if (file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' && 
+          file.type !== 'application/vnd.ms-excel') {
+        setExcelUpload(prev => ({ ...prev, error: 'Please upload a valid Excel file (.xlsx or .xls)' }));
+        return;
+      }
+
+      try {
+        setExcelUpload(prev => ({ ...prev, file, error: null }));
+        const workbook = await parseExcelFile(file);
+        
+        // Check if 'transaction' sheet exists
+        if (!workbook.SheetNames.includes('transaction')) {
+          throw new Error('Sheet "transaction" not found in the Excel file');
+        }
+
+        // Get the transaction sheet
+        const worksheet = workbook.Sheets['transaction'];
+        const data = XLSX.utils.sheet_to_json(worksheet) as Record<string, string | number>[];
+
+        // Validate and transform data
+        const validatedData = validateExcelData(data);
+        
+        setExcelUpload(prev => ({ 
+          ...prev, 
+          preview: validatedData,
+          error: null 
+        }));
+      } catch (error) {
+        console.error('Error parsing Excel file:', error);
+        setExcelUpload(prev => ({ 
+          ...prev, 
+          error: error instanceof Error ? error.message : 'Failed to parse Excel file' 
+        }));
+      }
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!excelUpload.file) return;
+
+    try {
+      setExcelUpload(prev => ({ ...prev, isUploading: true }));
+      // TODO: Add upload logic here
+      toast.success('Transactions imported successfully');
+      setExcelUpload(prev => ({ ...prev, isOpen: false }));
+    } catch (error) {
+      console.error('Failed to upload transactions:', error);
+      toast.error('Failed to import transactions');
+    } finally {
+      setExcelUpload(prev => ({ ...prev, isUploading: false }));
+    }
+  };
 
   return (
     <div className="min-h-screen">
@@ -203,13 +457,22 @@ export default function Transactions() {
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Transactions</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400">Manage your transactions history</p>
           </div>
-          <button 
-            onClick={() => setIsFormOpen(true)}
-            className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-          >
-            <PlusIcon className="w-4 h-4 mr-2" />
-            Add Transaction
-          </button>
+          <div className="flex gap-3">
+            <button 
+              onClick={() => setExcelUpload(prev => ({ ...prev, isOpen: true }))}
+              className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+            >
+              <UploadIcon className="w-4 h-4 mr-2" />
+              Import Excel
+            </button>
+            <button 
+              onClick={() => setIsFormOpen(true)}
+              className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+            >
+              <PlusIcon className="w-4 h-4 mr-2" />
+              Add Transaction
+            </button>
+          </div>
         </div>
 
         {/* Summary Cards */}
@@ -444,6 +707,159 @@ export default function Transactions() {
                   </button>
                 </div>
               </form>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
+
+        {/* Excel Upload Modal */}
+        <Dialog.Root open={excelUpload.isOpen} onOpenChange={(open) => setExcelUpload(prev => ({ ...prev, isOpen: open }))}>
+          <Dialog.Portal>
+            <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+            <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-4 sticky top-0 bg-white dark:bg-gray-900 py-2 z-10">
+                <Dialog.Title className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Import Transactions from Excel
+                </Dialog.Title>
+                <Dialog.Close className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                  <XIcon className="w-5 h-5" />
+                </Dialog.Close>
+              </div>
+
+              <div className="space-y-6">
+                {/* Template Download Section */}
+                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-blue-100 dark:bg-blue-800 rounded-lg">
+                      <FileIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-medium text-blue-900 dark:text-blue-100">Download Template</h3>
+                      <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                        Use our template to ensure your data is formatted correctly.
+                      </p>
+                      <a 
+                        href="/templates/transaction_template.xlsx" 
+                        download
+                        className="inline-flex items-center mt-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                      >
+                        <DownloadIcon className="w-4 h-4 mr-1" />
+                        Download Template
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Upload Area */}
+                <div 
+                  className={`border-2 border-dashed rounded-lg p-6 text-center ${
+                    excelUpload.error 
+                      ? 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20' 
+                      : 'border-gray-300 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500'
+                  }`}
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                >
+                  <input
+                    type="file"
+                    accept=".xlsx,.xls"
+                    onChange={handleFileChange}
+                    className="hidden"
+                    id="excel-upload"
+                  />
+                  <label 
+                    htmlFor="excel-upload"
+                    className="cursor-pointer"
+                  >
+                    <div className="space-y-3">
+                      <div className="mx-auto w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                        <UploadIcon className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          {excelUpload.file ? excelUpload.file.name : 'Drop your Excel file here'}
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                          or click to browse
+                        </p>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+
+                {/* Error Message */}
+                {excelUpload.error && (
+                  <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
+                    <AlertCircleIcon className="w-4 h-4" />
+                    <span>{excelUpload.error}</span>
+                  </div>
+                )}
+
+                {/* Preview Section */}
+                {excelUpload.preview.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-medium text-gray-900 dark:text-white">Preview</h3>
+                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead className="bg-gray-50 dark:bg-gray-800">
+                            <tr>
+                              <th className="px-4 py-2 text-left text-gray-500 dark:text-gray-400">Date</th>
+                              <th className="px-4 py-2 text-left text-gray-500 dark:text-gray-400">Type</th>
+                              <th className="px-4 py-2 text-left text-gray-500 dark:text-gray-400">Category</th>
+                              <th className="px-4 py-2 text-left text-gray-500 dark:text-gray-400">Amount</th>
+                              <th className="px-4 py-2 text-left text-gray-500 dark:text-gray-400">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                            {excelUpload.preview.map((row, index) => {
+                              // Convert YYYY-MM-DD to DD-MM-YYYY for display
+                              const [year, month, day] = row.date.split('-');
+                              const displayDate = `${day}-${month}-${year}`;
+                              
+                              return (
+                                <tr key={index} className="bg-white dark:bg-gray-900">
+                                  <td className="px-4 py-2 text-gray-900 dark:text-white">{displayDate}</td>
+                                  <td className="px-4 py-2 text-gray-900 dark:text-white">{row.type}</td>
+                                  <td className="px-4 py-2 text-gray-900 dark:text-white">{row.category_code}</td>
+                                  <td className="px-4 py-2 text-gray-900 dark:text-white">{formatCurrency(row.amount)}</td>
+                                  <td className="px-4 py-2 text-gray-900 dark:text-white">{row.description || '-'}</td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setExcelUpload(prev => ({ ...prev, isOpen: false }))}
+                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    disabled={excelUpload.isUploading}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleUpload}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={!excelUpload.file || excelUpload.isUploading}
+                  >
+                    {excelUpload.isUploading ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Uploading...</span>
+                      </div>
+                    ) : (
+                      'Upload Transactions'
+                    )}
+                  </button>
+                </div>
+              </div>
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog.Root>
