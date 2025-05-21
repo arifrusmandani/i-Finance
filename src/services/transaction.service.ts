@@ -49,6 +49,13 @@ export interface ErrorResponse {
   data: null;
 }
 
+export interface DeleteTransactionResponse {
+  status: boolean;
+  code: number;
+  message: string;
+  data: null;
+}
+
 interface ApiError {
   response?: {
     data: ErrorResponse;
@@ -139,6 +146,20 @@ export const transactionService = {
 
       return response.data;
     } catch (error) {
+      const apiError = error as ApiError;
+      if (apiError.response?.data) {
+        throw apiError.response.data;
+      }
+      throw error;
+    }
+  },
+
+  deleteTransaction: async (id: number): Promise<DeleteTransactionResponse> => {
+    try {
+      const response = await api.delete(`/transaction/${id}`);
+      return response.data;
+    } catch (error: unknown) {
+      console.error('Failed to delete transaction:', error);
       const apiError = error as ApiError;
       if (apiError.response?.data) {
         throw apiError.response.data;

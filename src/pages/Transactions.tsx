@@ -12,7 +12,8 @@ import {
   UploadIcon,
   DownloadIcon,
   FileIcon,
-  AlertCircleIcon
+  AlertCircleIcon,
+  Trash2Icon
 } from 'lucide-react';
 import { transactionService, Transaction as ServiceTransaction, TransactionSummary } from '../services/transaction.service';
 import { categoryService } from '../services/category.service';
@@ -21,6 +22,7 @@ import * as Select from '@radix-ui/react-select';
 import { toast, Toaster } from 'sonner';
 import { FormattedInput } from '../components/ui/formatted-input';
 import * as XLSX from 'xlsx';
+import { useSwipeable } from 'react-swipeable';
 
 interface TransactionForm {
   amount: string;
@@ -56,6 +58,90 @@ interface ExcelUploadState {
   }[];
   isUploading: boolean;
   error: string | null;
+}
+
+interface TransactionItemProps {
+  transaction: ServiceTransaction;
+  onDelete: (id: number) => void;
+}
+
+function TransactionItem({ transaction: tx, onDelete }: TransactionItemProps) {
+  const [isSwiped, setIsSwiped] = useState(false);
+
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => setIsSwiped(true),
+    onSwipedRight: () => setIsSwiped(false),
+    trackMouse: false,
+    delta: 10,
+    swipeDuration: 500,
+  });
+
+  const handleDelete = () => {
+    onDelete(tx.id);
+    setIsSwiped(false);
+  };
+
+  return (
+    <div 
+      className="group relative overflow-hidden"
+      {...swipeHandlers}
+    >
+      <div 
+        className={`relative p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-300 ease-in-out ${
+          isSwiped ? 'translate-x-[-80px]' : 'translate-x-0'
+        }`}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+              tx.type === 'INCOME' 
+                ? 'bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-400' 
+                : 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400'
+            }`}>
+              <span className="text-lg">{tx.category_icon}</span>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-900 dark:text-white">{tx.category_name}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {tx.description || '-'}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-4">
+            <div className="text-right">
+              <p className={`text-sm font-medium ${
+                tx.type === 'INCOME' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+              }`}>
+                {tx.type === 'INCOME' ? '+' : '-'} {formatCurrency(tx.amount)}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(tx.date)}</p>
+            </div>
+            {/* Desktop Delete Button */}
+            <button
+              onClick={handleDelete}
+              className="hidden md:block opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out p-2 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 focus:outline-none"
+              title="Delete transaction"
+            >
+              <Trash2Icon className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+      {/* Mobile Delete Button */}
+      <div 
+        className={`absolute top-0 right-0 h-full w-20 bg-red-500 flex items-center justify-center transition-transform duration-300 ease-in-out ${
+          isSwiped ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <button
+          onClick={handleDelete}
+          className="p-4 text-white focus:outline-none"
+        >
+          <Trash2Icon className="w-5 h-5" />
+        </button>
+      </div>
+    </div>
+  );
 }
 
 const parseExcelFile = async (file: File) => {
@@ -492,6 +578,43 @@ export default function Transactions() {
       });
     } finally {
       setExcelUpload(prev => ({ ...prev, isUploading: false }));
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this transaction?')) {
+      return;
+    }
+
+    try {
+      const response = await transactionService.deleteTransaction(id);
+      
+      if (response.status) {
+        toast.success('Transaction deleted successfully');
+        
+        // Refresh transactions list
+        const offset = (currentPage - 1) * itemsPerPage;
+        const updatedTransactions = await transactionService.getAllTransactions(offset, itemsPerPage);
+        if (updatedTransactions.status && updatedTransactions.data) {
+          setTransactions(updatedTransactions.data);
+          setTotalRecords(updatedTransactions.record_count || 0);
+        }
+
+        // Refresh summary
+        const summaryResponse = await transactionService.getTransactionSummary();
+        if (summaryResponse.status && summaryResponse.data) {
+          setSummary(summaryResponse.data);
+        }
+      } else {
+        toast.error('Failed to delete transaction', {
+          description: response.message || 'Please try again later',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to delete transaction:', error);
+      toast.error('Failed to delete transaction', {
+        description: error instanceof Error ? error.message : 'Please try again later',
+      });
     }
   };
 
@@ -944,33 +1067,11 @@ export default function Transactions() {
               ) : (
                 <>
                   {filteredTransactions.map((tx) => (
-                    <div key={tx.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                            tx.type === 'INCOME' 
-                              ? 'bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-400' 
-                              : 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400'
-                          }`}>
-                            <span className="text-lg">{tx.category_icon}</span>
-                          </div>
-                          <div>
-                            <h3 className="text-sm font-medium text-gray-900 dark:text-white">{tx.category_name}</h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
-                              {tx.description || '-'}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className={`text-sm font-medium ${
-                            tx.type === 'INCOME' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                          }`}>
-                            {tx.type === 'INCOME' ? '+' : '-'} {formatCurrency(tx.amount)}
-                          </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(tx.date)}</p>
-                        </div>
-                      </div>
-                    </div>
+                    <TransactionItem
+                      key={tx.id}
+                      transaction={tx}
+                      onDelete={handleDelete}
+                    />
                   ))}
 
                   {/* Pagination */}
