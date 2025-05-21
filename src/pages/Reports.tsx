@@ -20,107 +20,7 @@ interface MonthlyChartData {
 }
 
 // Dummy AI analysis data
-const dummyAnalysis = {
-  current_month: `# Financial Analysis - Current Month
-
-## 📊 Overview
-Your financial health is showing positive trends this month with a **15% increase** in savings compared to last month.
-
-## 💰 Key Insights
-- **Income Growth**: +12% from previous month
-- **Expense Reduction**: -8% in non-essential spending
-- **Savings Rate**: 35% of total income
-
-## 🎯 Recommendations
-1. **Investment Opportunity**: Consider increasing your investment allocation by 5%
-2. **Expense Optimization**: Review subscription services for potential savings
-3. **Emergency Fund**: You're on track to reach your emergency fund goal in 2 months
-
-## 📈 Trends
-- Food & Beverage expenses decreased by 15%
-- Transportation costs increased by 8%
-- Housing expenses remain stable
-
-## 🎯 Action Items
-- Review investment portfolio allocation
-- Set up automatic savings transfer
-- Monitor subscription renewals`,
-
-  '3_months': `# Financial Analysis - Last 3 Months
-
-## 📊 Overview
-Your financial performance over the last 3 months shows consistent growth with some areas for improvement.
-
-## 💰 Key Insights
-- **Average Monthly Savings**: 28% of income
-- **Investment Growth**: +8% portfolio value
-- **Debt Reduction**: 15% decrease in total debt
-
-## 🎯 Recommendations
-1. **Diversification**: Consider adding more diverse investment options
-2. **Budget Review**: Implement stricter budget controls for entertainment expenses
-3. **Income Streams**: Explore additional income opportunities
-
-## 📈 Trends
-- Consistent income growth
-- Fluctuating utility expenses
-- Increasing investment returns
-
-## 🎯 Action Items
-- Schedule quarterly investment review
-- Update budget categories
-- Research new investment opportunities`,
-
-  '6_months': `# Financial Analysis - Last 6 Months
-
-## 📊 Overview
-Your financial journey over the past 6 months shows significant progress towards your long-term goals.
-
-## 💰 Key Insights
-- **Total Savings**: 32% of income
-- **Investment Returns**: +12% overall
-- **Debt Management**: 25% reduction in total debt
-
-## 🎯 Recommendations
-1. **Portfolio Rebalancing**: Consider adjusting asset allocation
-2. **Tax Planning**: Review tax-efficient investment strategies
-3. **Emergency Fund**: Increase emergency fund target
-
-## 📈 Trends
-- Steady income growth
-- Decreasing discretionary spending
-- Increasing investment contributions
-
-## 🎯 Action Items
-- Schedule semi-annual financial review
-- Update financial goals
-- Review insurance coverage`,
-
-  '1_year': `# Financial Analysis - Last Year
-
-## 📊 Overview
-Your annual financial performance demonstrates strong growth and effective financial management.
-
-## 💰 Key Insights
-- **Annual Savings Rate**: 30% of income
-- **Investment Growth**: +18% portfolio value
-- **Debt Reduction**: 40% decrease in total debt
-
-## 🎯 Recommendations
-1. **Long-term Planning**: Review retirement goals
-2. **Asset Allocation**: Consider rebalancing investment portfolio
-3. **Tax Strategy**: Optimize tax-efficient investments
-
-## 📈 Trends
-- Consistent income growth
-- Decreasing debt-to-income ratio
-- Increasing net worth
-
-## 🎯 Action Items
-- Schedule annual financial review
-- Update long-term financial goals
-- Review estate planning`
-};
+const dummyAnalysis = "Baik, dengan senang hati saya akan melakukan analisis komprehensif terhadap data cashflow yang Anda berikan. Berikut adalah laporan analisis keuangan, disusun berdasarkan instruksi yang Anda berikan:\n\n**LAPORAN ANALISIS CASHFLOW KEUANGAN**\n\n**Periode: April 2025 - Mei 2025**\n\n**1. Ringkasan Umum per Bulan**\n\n| Bulan      | Total Pemasukan (Rp) | Total Pengeluaran (Rp) | Arus Kas Bersih (Rp) |\n| ----------- | -------------------- | --------------------- | --------------------- |\n| April 2025  | 10,000,000.0          | 5,310,000.0           | 4,690,000.0           |\n| Mei 2025    | 10,000,000.0          | 4,705,000.0           | 5,295,000.0           |\n| **Rata-rata** | **10,000,000.0**       | **5,007,500.0**         | **4,992,500.0**         |\n\n**Interpretasi:**\n\nSecara umum, terlihat bahwa keuangan Anda dalam kondisi yang baik, dengan arus kas yang surplus setiap bulan. Terdapat perbedaan pengeluaran antar bulan, yang akan dianalisis lebih lanjut.\n\n**2. Analisis Pemasukan (Income)**\n\n*   **Sumber Pemasukan:**\n    *   **Utama/Rutin:** Gaji bulanan.\n    *   **Tambahan/Tidak Tetap:** Tidak ada, hanya ada satu sumber yaitu gaji.\n*   **Stabilitas Sumber Pemasukan Utama:** Sumber pemasukan utama (gaji) terlihat sangat stabil, dengan jumlah yang konstan setiap bulan. Ini memberikan fondasi yang kuat untuk perencanaan keuangan.\n*   **Total Pemasukan dan Rata-rata:** Total pemasukan per bulan adalah Rp 10,000,000.0. Rata-rata pemasukan selama periode ini juga Rp 10,000,000.0.\n*   **Fluktuasi Pemasukan:** Tidak ada fluktuasi karena hanya ada satu sumber pemasukan yang nilainya tetap.\n\n**3. Analisis Pengeluaran (Expense)**\n\n*   **Pengeluaran Tetap/Wajib:**\n    *   Sewa Rumah/Kontrakan (Housing): Rp 1,750,000.0 (April & Mei). Ini merupakan pengeluaran terbesar dan wajib.\n*   **Pengeluaran Semi-Variabel:**\n    *   Makanan (Food): Bervariasi setiap bulan, termasuk makan sehari-hari, groceries, snack, kopi.\n    *   Transportasi (Transport): Bensin, e-money, servis motor, ojek online.\n    *   Housing: Biaya Listrik.\n*   **Pengeluaran Tidak Tetap/Insidentil:**\n    *   Kesehatan (Health): Beli obat, vitamin, suplemen, biaya pengobatan.\n    *   Belanja (Shopping): Beli pakaian, sepatu.\n    *   Donasi (Donation): Sedekah, donasi masjid, donasi panti asuhan, donasi anak yatim.\n    *   Hiburan (Entertainment): Nonton bioskop, konser, langganan Spotify.\n    *   Pendidikan (Education): Beli buku, kursus online, pelatihan online, beli alat tulis.\n    *   Lain-lain (Others_expense): Beli tanaman hias, hadiah ulang tahun, hadiah teman.\n*   **Tren Pengeluaran:** Terjadi perbedaan signifikan pada kategori pengeluaran food dan shopping di antara bulan April dan Mei. Perlu dilihat lagi apa penyebabnya, apakah terdapat kebutuhan mendesak atau tidak.\n*   **Total Pengeluaran dan Rata-rata:** Total pengeluaran bulan April adalah Rp 5,310,000.0, sedangkan bulan Mei adalah Rp 4,705,000.0. Rata-rata pengeluaran selama periode ini adalah Rp 5,007,500.0.\n\n**4. Analisis Arus Kas Bersih (Net Cash Flow)**\n\n*   **Kondisi Keuangan:** Kondisi keuangan secara keseluruhan sangat positif karena konsisten surplus setiap bulan.\n*   **Besaran Surplus/Defisit:** Surplus bulan April adalah Rp 4,690,000.0 dan surplus bulan Mei adalah Rp 5,295,000.0. Rata-rata surplus adalah Rp 4,992,500.0.\n*   **Faktor Fluktuasi Arus Kas Bersih:** Fluktuasi pada arus kas bersih terutama disebabkan oleh perbedaan pengeluaran antar bulan. Pada bulan April, pengeluaran lebih tinggi karena ada kebutuhan insidentil seperti beli obat flu, beli kaos online, dan beli buku pelajaran.\n\n**5. Observasi Kunci**\n\n*   **Kesehatan Finansial:** Kesehatan finansial secara umum baik, ditandai dengan pendapatan stabil dan surplus bulanan yang konsisten.\n*   **Kekuatan:** Pendapatan yang stabil merupakan kekuatan utama.\n*   **Kelemahan/Area Perhatian:** Adanya fluktuasi pada pengeluaran semi-variabel (food, transport) dan insidentil (kesehatan, shopping, entertainment, education). Perlu diperhatikan dan dikelola agar tidak mengganggu surplus.\n*   **Potensi:** Potensi besar dari surplus bulanan yang dapat dialokasikan untuk tujuan keuangan yang lebih strategis (dana darurat, investasi, pelunasan utang).\n\n**6. Rekomendasi**\n\nBerdasarkan analisis di atas, berikut adalah beberapa rekomendasi yang dapat dipertimbangkan:\n\n1.  **Alokasi Surplus:**\n    *   **Dana Darurat:** Prioritaskan pembentukan dana darurat yang idealnya mencakup 3-6 bulan pengeluaran rutin.\n    *   **Investasi:** Pertimbangkan diversifikasi investasi sesuai dengan profil risiko dan tujuan keuangan Anda (misal: reksa dana, saham, obligasi).\n    *   **Pelunasan Utang:** Jika ada utang dengan bunga tinggi (misal: kartu kredit), alokasikan sebagian surplus untuk mempercepat pelunasan.\n2.  **Anggaran (Budgeting):**\n    *   Buat anggaran bulanan yang lebih rinci, khususnya untuk kategori pengeluaran semi-variabel dan insidentil.\n    *   Lacak pengeluaran secara teratur dan bandingkan dengan anggaran yang telah dibuat.\n    *   Identifikasi area di mana pengeluaran dapat dioptimalkan tanpa mengorbankan kualitas hidup.\n3.  **Klarifikasi Kategori Pengeluaran:**\n    *   Review kategori pengeluaran yang ada dan pastikan sesuai dengan kebutuhan dan tujuan keuangan.\n    *   Pertimbangkan untuk membuat sub-kategori yang lebih spesifik jika diperlukan (misal: \"Food - Makan di Luar\" vs \"Food - Groceries\").\n4.  **Mengelola Pengeluaran Tidak Tetap:**\n    *   Siapkan anggaran khusus untuk pengeluaran tidak terduga (misal: perbaikan rumah, biaya kesehatan).\n    *   Pertimbangkan untuk memiliki asuransi kesehatan untuk mengurangi risiko biaya pengobatan yang besar.\n5.  **Review Keuangan Berkala:**\n    *   Lakukan review keuangan secara berkala (misal: bulanan, kuartalan) untuk memantau kinerja keuangan dan mengidentifikasi peluang perbaikan.\n    *   Evaluasi apakah tujuan keuangan jangka pendek dan jangka panjang masih relevan dan realistis.\n\nDengan menerapkan rekomendasi ini, Anda dapat meningkatkan efisiensi pengelolaan keuangan dan mencapai tujuan keuangan Anda dengan lebih efektif.\n\nSemoga laporan ini bermanfaat. Jika ada pertanyaan lebih lanjut, jangan ragu untuk bertanya.\n"
 
 export default function Reports() {
   const [categoryReport, setCategoryReport] = useState<CategoryReport[]>([]);
@@ -418,110 +318,193 @@ export default function Reports() {
           </CardHeader>
           <CardContent>
             <div className="prose dark:prose-invert max-w-none">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Left Column - Overview and Key Insights */}
-                <div className="space-y-6">
-                  {/* Overview Section */}
-                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-                    <h2 className="text-xl font-semibold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
-                      <span>📊</span> Overview
-                    </h2>
-                    <p className="text-blue-800 dark:text-blue-200 leading-relaxed">
-                      Your financial health is showing positive trends this month with a <span className="font-semibold">15% increase</span> in savings compared to last month.
-                    </p>
-                  </div>
+              {/* Overview Section */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6 mb-6">
+                <h2 className="text-xl font-semibold text-blue-900 dark:text-blue-100 mb-4 flex items-center gap-2">
+                  <span>📊</span> Ringkasan Umum
+                </h2>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="border-b border-blue-200 dark:border-blue-800">
+                        <th className="px-4 py-2 text-left text-sm font-medium text-blue-700 dark:text-blue-300">Bulan</th>
+                        <th className="px-4 py-2 text-right text-sm font-medium text-blue-700 dark:text-blue-300">Total Pemasukan</th>
+                        <th className="px-4 py-2 text-right text-sm font-medium text-blue-700 dark:text-blue-300">Total Pengeluaran</th>
+                        <th className="px-4 py-2 text-right text-sm font-medium text-blue-700 dark:text-blue-300">Arus Kas Bersih</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b border-blue-100 dark:border-blue-800/50">
+                        <td className="px-4 py-2 text-sm text-blue-900 dark:text-blue-100">April 2025</td>
+                        <td className="px-4 py-2 text-sm text-right text-green-600 dark:text-green-400">+10,000,000</td>
+                        <td className="px-4 py-2 text-sm text-right text-red-600 dark:text-red-400">-5,310,000</td>
+                        <td className="px-4 py-2 text-sm text-right text-green-600 dark:text-green-400">+4,690,000</td>
+                      </tr>
+                      <tr className="border-b border-blue-100 dark:border-blue-800/50">
+                        <td className="px-4 py-2 text-sm text-blue-900 dark:text-blue-100">Mei 2025</td>
+                        <td className="px-4 py-2 text-sm text-right text-green-600 dark:text-green-400">+10,000,000</td>
+                        <td className="px-4 py-2 text-sm text-right text-red-600 dark:text-red-400">-4,705,000</td>
+                        <td className="px-4 py-2 text-sm text-right text-green-600 dark:text-green-400">+5,295,000</td>
+                      </tr>
+                      <tr className="bg-blue-50 dark:bg-blue-900/30">
+                        <td className="px-4 py-2 text-sm font-medium text-blue-900 dark:text-blue-100">Rata-rata</td>
+                        <td className="px-4 py-2 text-sm text-right font-medium text-green-600 dark:text-green-400">+10,000,000</td>
+                        <td className="px-4 py-2 text-sm text-right font-medium text-red-600 dark:text-red-400">-5,007,500</td>
+                        <td className="px-4 py-2 text-sm text-right font-medium text-green-600 dark:text-green-400">+4,992,500</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p className="mt-4 text-sm text-blue-800 dark:text-blue-200">
+                  Secara umum, terlihat bahwa keuangan Anda dalam kondisi yang baik, dengan arus kas yang surplus setiap bulan. 
+                  Terdapat perbedaan pengeluaran antar bulan, yang akan dianalisis lebih lanjut.
+                </p>
+              </div>
 
-                  {/* Key Insights Section */}
-                  <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-                    <h2 className="text-xl font-semibold text-green-900 dark:text-green-100 mb-3 flex items-center gap-2">
-                      <span>💰</span> Key Insights
-                    </h2>
-                    <ul className="space-y-2">
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-600 dark:text-green-400">•</span>
-                        <span className="text-green-800 dark:text-green-200">
-                          <span className="font-semibold">Income Growth:</span> +12% from previous month
-                        </span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-600 dark:text-green-400">•</span>
-                        <span className="text-green-800 dark:text-green-200">
-                          <span className="font-semibold">Expense Reduction:</span> -8% in non-essential spending
-                        </span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-600 dark:text-green-400">•</span>
-                        <span className="text-green-800 dark:text-green-200">
-                          <span className="font-semibold">Savings Rate:</span> 35% of total income
-                        </span>
-                      </li>
-                    </ul>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Income Analysis */}
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6">
+                  <h2 className="text-xl font-semibold text-green-900 dark:text-green-100 mb-4 flex items-center gap-2">
+                    <span>💰</span> Analisis Pemasukan
+                  </h2>
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">Sumber Pemasukan</h3>
+                      <ul className="space-y-2">
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 dark:text-green-400">•</span>
+                          <span className="text-sm text-green-800 dark:text-green-200">
+                            <span className="font-medium">Utama/Rutin:</span> Gaji bulanan
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 dark:text-green-400">•</span>
+                          <span className="text-sm text-green-800 dark:text-green-200">
+                            <span className="font-medium">Tambahan/Tidak Tetap:</span> Tidak ada
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">Stabilitas & Fluktuasi</h3>
+                      <ul className="space-y-2">
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 dark:text-green-400">•</span>
+                          <span className="text-sm text-green-800 dark:text-green-200">
+                            Sumber pemasukan utama (gaji) terlihat sangat stabil
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 dark:text-green-400">•</span>
+                          <span className="text-sm text-green-800 dark:text-green-200">
+                            Tidak ada fluktuasi karena nilai tetap
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
 
-                {/* Right Column - Recommendations and Action Items */}
-                <div className="space-y-6">
-                  {/* Recommendations Section */}
-                  <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
-                    <h2 className="text-xl font-semibold text-purple-900 dark:text-purple-100 mb-3 flex items-center gap-2">
-                      <span>🎯</span> Recommendations
-                    </h2>
-                    <ol className="space-y-3 list-decimal list-inside">
-                      <li className="text-purple-800 dark:text-purple-200">
-                        <span className="font-semibold">Investment Opportunity:</span> Consider increasing your investment allocation by 5%
-                      </li>
-                      <li className="text-purple-800 dark:text-purple-200">
-                        <span className="font-semibold">Expense Optimization:</span> Review subscription services for potential savings
-                      </li>
-                      <li className="text-purple-800 dark:text-purple-200">
-                        <span className="font-semibold">Emergency Fund:</span> You're on track to reach your emergency fund goal in 2 months
-                      </li>
-                    </ol>
-                  </div>
-
-                  {/* Action Items Section */}
-                  <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-4">
-                    <h2 className="text-xl font-semibold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2">
-                      <span>📝</span> Action Items
-                    </h2>
-                    <ul className="space-y-2">
-                      <li className="flex items-start gap-2">
-                        <span className="text-amber-600 dark:text-amber-400">•</span>
-                        <span className="text-amber-800 dark:text-amber-200">Review investment portfolio allocation</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-amber-600 dark:text-amber-400">•</span>
-                        <span className="text-amber-800 dark:text-amber-200">Set up automatic savings transfer</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-amber-600 dark:text-amber-400">•</span>
-                        <span className="text-amber-800 dark:text-amber-200">Monitor subscription renewals</span>
-                      </li>
-                    </ul>
+                {/* Expense Analysis */}
+                <div className="bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 rounded-lg p-6">
+                  <h2 className="text-xl font-semibold text-red-900 dark:text-red-100 mb-4 flex items-center gap-2">
+                    <span>📉</span> Analisis Pengeluaran
+                  </h2>
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-sm font-medium text-red-800 dark:text-red-200 mb-2">Kategori Pengeluaran</h3>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="bg-white/50 dark:bg-red-900/30 rounded-lg p-3">
+                          <h4 className="text-xs font-medium text-red-700 dark:text-red-300 mb-1">Tetap/Wajib</h4>
+                          <p className="text-sm text-red-800 dark:text-red-200">Sewa Rumah: Rp 1,750,000</p>
+                        </div>
+                        <div className="bg-white/50 dark:bg-red-900/30 rounded-lg p-3">
+                          <h4 className="text-xs font-medium text-red-700 dark:text-red-300 mb-1">Semi-Variabel</h4>
+                          <p className="text-sm text-red-800 dark:text-red-200">Makanan, Transport, Listrik</p>
+                        </div>
+                        <div className="bg-white/50 dark:bg-red-900/30 rounded-lg p-3 col-span-2">
+                          <h4 className="text-xs font-medium text-red-700 dark:text-red-300 mb-1">Tidak Tetap</h4>
+                          <p className="text-sm text-red-800 dark:text-red-200">Kesehatan, Belanja, Donasi, Hiburan, Pendidikan</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-red-800 dark:text-red-200 mb-2">Tren Pengeluaran</h3>
+                      <p className="text-sm text-red-800 dark:text-red-200">
+                        Terjadi perbedaan signifikan pada kategori pengeluaran food dan shopping di antara bulan April dan Mei.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Trends Section - Full Width */}
-              <div className="mt-6 bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
-                  <span>📈</span> Trends
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
-                    <p className="text-gray-800 dark:text-gray-200">
-                      <span className="font-semibold text-red-600 dark:text-red-400">↓</span> Food & Beverage expenses decreased by 15%
-                    </p>
+              {/* Key Observations & Recommendations */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                {/* Key Observations */}
+                <div className="bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 rounded-lg p-6">
+                  <h2 className="text-xl font-semibold text-purple-900 dark:text-purple-100 mb-4 flex items-center gap-2">
+                    <span>🔍</span> Observasi Kunci
+                  </h2>
+                  <div className="space-y-4">
+                    <div className="bg-white/50 dark:bg-purple-900/30 rounded-lg p-4">
+                      <h3 className="text-sm font-medium text-purple-800 dark:text-purple-200 mb-2">Kesehatan Finansial</h3>
+                      <p className="text-sm text-purple-800 dark:text-purple-200">
+                        Kesehatan finansial secara umum baik, ditandai dengan pendapatan stabil dan surplus bulanan yang konsisten.
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-white/50 dark:bg-purple-900/30 rounded-lg p-3">
+                        <h4 className="text-xs font-medium text-purple-700 dark:text-purple-300 mb-1">Kekuatan</h4>
+                        <p className="text-sm text-purple-800 dark:text-purple-200">Pendapatan yang stabil</p>
+                      </div>
+                      <div className="bg-white/50 dark:bg-purple-900/30 rounded-lg p-3">
+                        <h4 className="text-xs font-medium text-purple-700 dark:text-purple-300 mb-1">Kelemahan</h4>
+                        <p className="text-sm text-purple-800 dark:text-purple-200">Fluktuasi pengeluaran variabel</p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
-                    <p className="text-gray-800 dark:text-gray-200">
-                      <span className="font-semibold text-red-600 dark:text-red-400">↑</span> Transportation costs increased by 8%
-                    </p>
-                  </div>
-                  <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
-                    <p className="text-gray-800 dark:text-gray-200">
-                      <span className="font-semibold text-gray-600 dark:text-gray-400">→</span> Housing expenses remain stable
-                    </p>
+                </div>
+
+                {/* Recommendations */}
+                <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-lg p-6">
+                  <h2 className="text-xl font-semibold text-amber-900 dark:text-amber-100 mb-4 flex items-center gap-2">
+                    <span>🎯</span> Rekomendasi
+                  </h2>
+                  <div className="space-y-4">
+                    <div className="bg-white/50 dark:bg-amber-900/30 rounded-lg p-4">
+                      <h3 className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-2">Alokasi Surplus</h3>
+                      <ul className="space-y-2">
+                        <li className="flex items-start gap-2">
+                          <span className="text-amber-600 dark:text-amber-400">•</span>
+                          <span className="text-sm text-amber-800 dark:text-amber-200">
+                            <span className="font-medium">Dana Darurat:</span> 3-6 bulan pengeluaran rutin
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-amber-600 dark:text-amber-400">•</span>
+                          <span className="text-sm text-amber-800 dark:text-amber-200">
+                            <span className="font-medium">Investasi:</span> Diversifikasi sesuai profil risiko
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+                    <div className="bg-white/50 dark:bg-amber-900/30 rounded-lg p-4">
+                      <h3 className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-2">Anggaran & Review</h3>
+                      <ul className="space-y-2">
+                        <li className="flex items-start gap-2">
+                          <span className="text-amber-600 dark:text-amber-400">•</span>
+                          <span className="text-sm text-amber-800 dark:text-amber-200">
+                            Buat anggaran bulanan yang lebih rinci
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-amber-600 dark:text-amber-400">•</span>
+                          <span className="text-sm text-amber-800 dark:text-amber-200">
+                            Lakukan review keuangan berkala
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </div>
