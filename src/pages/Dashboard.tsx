@@ -244,119 +244,6 @@ export default function Dashboard() {
           <div className="lg:w-2/3 space-y-6">
             <GreetingCard />
             <OverviewSection />
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Outcome Categories */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Outcome categories:</CardTitle>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {formatCurrency(totalExpenseAmount)} in {currentMonth}
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  {isLoadingExpenseCategories ? (
-                    <div className="h-[300px] flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                    </div>
-                  ) : expenseCategories.length === 0 ? (
-                    <div className="h-[300px] flex items-center justify-center text-gray-500 dark:text-gray-400">
-                      No expense data available
-                    </div>
-                  ) : (
-                    <>
-                      <div className="h-[300px]">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={expenseCategories.map((cat, index) => ({ ...cat, index, type: 'EXPENSE' }))}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={60}
-                              outerRadius={80}
-                              paddingAngle={5}
-                              dataKey="amount"
-                            >
-                              {expenseCategories.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
-                              ))}
-                            </Pie>
-                            <Tooltip content={<SimplePieTooltip />} />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </div>
-                      <div className="space-y-2 mt-4">
-                        {expenseCategories.map((item, index) => (
-                          <div key={index} className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                              <span className="text-sm text-gray-600 dark:text-gray-300">{item.category_name}</span>
-                            </div>
-                            <span className="text-sm font-medium">{formatCurrency(item.amount)}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Income Categories */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Income categories:</CardTitle>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {formatCurrency(totalIncomeAmount)} in {currentMonth}
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  {isLoadingIncomeCategories ? (
-                    <div className="h-[300px] flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                    </div>
-                  ) : incomeCategories.length === 0 ? (
-                    <div className="h-[300px] flex items-center justify-center text-gray-500 dark:text-gray-400">
-                      No income data available
-                    </div>
-                  ) : (
-                    <>
-                      <div className="h-[300px]">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={incomeCategories.map((cat, index) => ({ ...cat, index, type: 'INCOME' }))}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={60}
-                              outerRadius={80}
-                              paddingAngle={5}
-                              dataKey="amount"
-                            >
-                              {incomeCategories.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
-                              ))}
-                            </Pie>
-                            <Tooltip content={<SimplePieTooltip />} />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </div>
-                      <div className="space-y-2 mt-4">
-                        {incomeCategories.map((item, index) => (
-                          <div key={index} className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                              <span className="text-sm text-gray-600 dark:text-gray-300">{item.category_name}</span>
-                            </div>
-                            <span className="text-sm font-medium">{formatCurrency(item.amount)}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-
             {/* Cashflow Chart */}
             <Card className="overflow-hidden">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
@@ -385,7 +272,7 @@ export default function Dashboard() {
                       Total Balance
                     </p>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                      $12,000
+                      Rp 100.000.000
                     </h2>
                   </div>
                   <div className="flex items-center space-x-4">
@@ -459,6 +346,119 @@ export default function Dashboard() {
                 </div>
               </CardContent>
             </Card>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Outcome Categories */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Outcome categories:</CardTitle>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {formatCurrency(totalExpenseAmount)} in {currentMonth}
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  {isLoadingExpenseCategories ? (
+                    <div className="h-[300px] flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    </div>
+                  ) : expenseCategories.length === 0 ? (
+                    <div className="h-[300px] flex items-center justify-center text-gray-500 dark:text-gray-400">
+                      No expense data available
+                    </div>
+                  ) : (
+                    <>
+                      <div className="h-[200px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={expenseCategories.map((cat, index) => ({ ...cat, index, type: 'EXPENSE' }))}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={60}
+                              outerRadius={80}
+                              paddingAngle={5}
+                              dataKey="amount"
+                            >
+                              {expenseCategories.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.color} />
+                              ))}
+                            </Pie>
+                            <Tooltip content={<SimplePieTooltip />} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                      <div className="space-y-2 mt-4">
+                        {expenseCategories.map((item, index) => (
+                          <div key={index} className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                              <span className="text-sm text-gray-600 dark:text-gray-300">{item.category_name}</span>
+                            </div>
+                            <span className="text-sm font-medium">{formatCurrency(item.amount)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Income Categories */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Income categories:</CardTitle>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {formatCurrency(totalIncomeAmount)} in {currentMonth}
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  {isLoadingIncomeCategories ? (
+                    <div className="h-[300px] flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    </div>
+                  ) : incomeCategories.length === 0 ? (
+                    <div className="h-[300px] flex items-center justify-center text-gray-500 dark:text-gray-400">
+                      No income data available
+                    </div>
+                  ) : (
+                    <>
+                      <div className="h-[200px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={incomeCategories.map((cat, index) => ({ ...cat, index, type: 'INCOME' }))}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={60}
+                              outerRadius={80}
+                              paddingAngle={5}
+                              dataKey="amount"
+                            >
+                              {incomeCategories.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.color} />
+                              ))}
+                            </Pie>
+                            <Tooltip content={<SimplePieTooltip />} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                      <div className="space-y-2 mt-4">
+                        {incomeCategories.map((item, index) => (
+                          <div key={index} className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                              <span className="text-sm text-gray-600 dark:text-gray-300">{item.category_name}</span>
+                            </div>
+                            <span className="text-sm font-medium">{formatCurrency(item.amount)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
           </div>
 
           {/* Right Column - Sidebar (narrower) */}
@@ -482,7 +482,7 @@ export default function Dashboard() {
                     No expense data available
                   </div>
                 ) : (
-                  <div className="relative pt-4">
+                  <div className="relative">
                     <div className="relative w-[200px] h-[200px] mx-auto mb-4">
                       <div className="absolute inset-0 flex items-center justify-center z-10">
                         <div className={`text-center transform transition-all duration-200 ${
@@ -544,7 +544,7 @@ export default function Dashboard() {
                       {mostExpensesData.map((item, index) => (
                         <div 
                           key={index} 
-                          className={`flex items-center justify-between cursor-pointer p-2 rounded-lg transition-all duration-200 ${
+                          className={`flex items-center justify-between cursor-pointer rounded-lg transition-all duration-200 ${
                             hoveredIndex === index 
                               ? 'bg-gray-50 dark:bg-gray-700 scale-105' 
                               : 'hover:bg-gray-50 dark:hover:bg-gray-700'

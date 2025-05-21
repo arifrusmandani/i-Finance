@@ -11,7 +11,7 @@ export default function Sidebar({ showText }: SidebarProps) {
   const navItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/transactions', icon: Wallet, label: 'Transaksi' },
-    { path: '/members', icon: Users, label: 'Anggota' },
+    { path: '/members', icon: Users, label: 'Keluarga' },
     { path: '/reports', icon: FileText, label: 'Laporan' },
     { path: '/profile', icon: User, label: 'Profil' },
   ];
