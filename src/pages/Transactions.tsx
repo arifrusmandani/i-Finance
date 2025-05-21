@@ -208,16 +208,23 @@ export default function Transactions() {
     error: null
   });
 
+  // Add pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const itemsPerPage = 10;
+
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
+        const offset = (currentPage - 1) * itemsPerPage;
         const [transactionsResponse, summaryResponse] = await Promise.all([
-          transactionService.getAllTransactions(),
+          transactionService.getAllTransactions(offset, itemsPerPage),
           transactionService.getTransactionSummary(),
         ]);
 
         if (transactionsResponse.status && transactionsResponse.data) {
           setTransactions(transactionsResponse.data);
+          setTotalRecords(transactionsResponse.record_count || 0);
         }
 
         if (summaryResponse.status && summaryResponse.data) {
@@ -233,7 +240,12 @@ export default function Transactions() {
     };
 
     fetchTransactions();
-  }, []);
+  }, [currentPage]); // Re-fetch when page changes
+
+  // Reset to first page when search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   const handleTypeChange = async (type: 'INCOME' | 'EXPENSE') => {
     setFormData(prev => ({ ...prev, type, category_code: '' })); // Reset category when type changes
@@ -482,6 +494,8 @@ export default function Transactions() {
       setExcelUpload(prev => ({ ...prev, isUploading: false }));
     }
   };
+
+  const totalPages = Math.ceil(totalRecords / itemsPerPage);
 
   return (
     <div className="min-h-screen">
@@ -928,35 +942,130 @@ export default function Transactions() {
                   No transactions found
                 </div>
               ) : (
-                filteredTransactions.map((tx) => (
-                  <div key={tx.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                          tx.type === 'INCOME' 
-                            ? 'bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-400' 
-                            : 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400'
-                        }`}>
-                          <span className="text-lg">{tx.category_icon}</span>
+                <>
+                  {filteredTransactions.map((tx) => (
+                    <div key={tx.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                            tx.type === 'INCOME' 
+                              ? 'bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-400' 
+                              : 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400'
+                          }`}>
+                            <span className="text-lg">{tx.category_icon}</span>
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-medium text-gray-900 dark:text-white">{tx.category_name}</h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {tx.description || '-'}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-900 dark:text-white">{tx.category_name}</h3>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {tx.description || '-'}
+                        <div className="text-right">
+                          <p className={`text-sm font-medium ${
+                            tx.type === 'INCOME' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                          }`}>
+                            {tx.type === 'INCOME' ? '+' : '-'} {formatCurrency(tx.amount)}
                           </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(tx.date)}</p>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <p className={`text-sm font-medium ${
-                          tx.type === 'INCOME' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                        }`}>
-                          {tx.type === 'INCOME' ? '+' : '-'} {formatCurrency(tx.amount)}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(tx.date)}</p>
                       </div>
                     </div>
-                  </div>
-                ))
+                  ))}
+
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <div className="px-4 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-700">
+                      <div className="flex-1 flex justify-between sm:hidden">
+                        <button
+                          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                          disabled={currentPage === 1}
+                          className="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Previous
+                        </button>
+                        <button
+                          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                          disabled={currentPage === totalPages}
+                          className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Next
+                        </button>
+                      </div>
+                      <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">
+                            Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
+                            <span className="font-medium">{Math.min(currentPage * itemsPerPage, totalRecords)}</span> of{' '}
+                            <span className="font-medium">{totalRecords}</span> results
+                          </p>
+                        </div>
+                        <div>
+                          <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            <button
+                              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                              disabled={currentPage === 1}
+                              className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              <span className="sr-only">Previous</span>
+                              <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </button>
+
+                            {/* Page Numbers */}
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                              // Show first page, last page, current page, and pages around current page
+                              if (
+                                page === 1 ||
+                                page === totalPages ||
+                                (page >= currentPage - 1 && page <= currentPage + 1)
+                              ) {
+                                return (
+                                  <button
+                                    key={page}
+                                    onClick={() => setCurrentPage(page)}
+                                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                                      page === currentPage
+                                        ? 'z-10 bg-blue-50 dark:bg-blue-900/20 border-blue-500 dark:border-blue-500 text-blue-600 dark:text-blue-400'
+                                        : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                                    }`}
+                                  >
+                                    {page}
+                                  </button>
+                                );
+                              } else if (
+                                page === currentPage - 2 ||
+                                page === currentPage + 2
+                              ) {
+                                return (
+                                  <span
+                                    key={page}
+                                    className="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300"
+                                  >
+                                    ...
+                                  </span>
+                                );
+                              }
+                              return null;
+                            })}
+
+                            <button
+                              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                              disabled={currentPage === totalPages}
+                              className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              <span className="sr-only">Next</span>
+                              <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </button>
+                          </nav>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </CardContent>
