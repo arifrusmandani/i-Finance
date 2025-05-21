@@ -649,56 +649,58 @@ export default function Transactions() {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="bg-white dark:bg-gray-800">
-            <CardHeader>
-              <CardTitle className="text-lg text-gray-900 dark:text-white">Total Income</CardTitle>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {/* Total Balance Card (Full width on mobile, first item in grid on md+) */}
+          <Card className="bg-white dark:bg-gray-800 md:col-span-1">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-700 dark:text-gray-300">Total Balance</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-2">
               {isLoadingSummary ? (
-                <div className="h-8 w-24 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
+                <div className="h-6 w-20 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
               ) : (
                 <div className="flex items-center">
-                  <ArrowUpIcon className="w-4 h-4 text-green-500 mr-2" />
-                  <span className="text-2xl font-bold text-green-500">{formatCurrency(summary.total_income)}</span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-          <Card className="bg-white dark:bg-gray-800">
-            <CardHeader>
-              <CardTitle className="text-lg text-gray-900 dark:text-white">Total Expense</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isLoadingSummary ? (
-                <div className="h-8 w-24 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
-              ) : (
-                <div className="flex items-center">
-                  <ArrowDownIcon className="w-4 h-4 text-red-500 mr-2" />
-                  <span className="text-2xl font-bold text-red-500">{formatCurrency(summary.total_expense)}</span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-          <Card className="bg-white dark:bg-gray-800">
-            <CardHeader>
-              <CardTitle className="text-lg text-gray-900 dark:text-white">Total Balance</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isLoadingSummary ? (
-                <div className="h-8 w-24 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
-              ) : (
-                <div className="flex items-center">
-                  <span className={`w-4 h-4 mr-2 ${summary.total_balance >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    {summary.total_balance >= 0 ? '+' : '-'}
+                  <span className={`text-xl font-bold ${summary.total_balance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                    {formatCurrency(summary.total_balance)}
                   </span>
-                  <span className={`text-2xl font-bold ${summary.total_balance >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    {formatCurrency(Math.abs(summary.total_balance))}
-                  </span>
-                </div>
+              </div>
               )}
             </CardContent>
           </Card>
+
+          {/* Income and Expense Cards (2 columns on mobile, occupy remaining space on md+) */}
+          <div className="grid grid-cols-2 gap-4 md:col-span-2">
+            <Card className="bg-white dark:bg-gray-800">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-700 dark:text-gray-300">Income</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-2">
+                {isLoadingSummary ? (
+                  <div className="h-6 w-20 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
+                ) : (              
+                <div className="flex items-center">
+                  <ArrowUpIcon className="w-4 h-4 text-blue-500 mr-1.5" />
+                    <span className="text-xl font-bold text-blue-600">{formatCurrency(summary.total_income)}</span>
+                </div>
+                )}
+              </CardContent>
+            </Card>
+            <Card className="bg-white dark:bg-gray-800">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-700 dark:text-gray-300">Expense</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-2">
+                {isLoadingSummary ? (
+                  <div className="h-6 w-20 bg-gray-200 dark:bg-gray-700 animate-pulse rounded"></div>
+                ) : (              
+                <div className="flex items-center">
+                  <ArrowDownIcon className="w-4 h-4 text-red-500 mr-1.5" />
+                    <span className="text-xl font-bold text-red-600">{formatCurrency(summary.total_expense)}</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         {/* Search and Filter */}
