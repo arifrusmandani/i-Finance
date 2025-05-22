@@ -37,6 +37,10 @@ export default function Login() {
       });
       
       if (response.status && response.data) {
+        // Store user data in local storage
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        localStorage.setItem('access_token', response.data.access_token);
+        
         await login(response.data.access_token, response.data.user);
         navigate('/dashboard');
       } else {
