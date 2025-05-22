@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from './ui/card';
-import { ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
+import { ArrowUpIcon, ArrowDownIcon, WalletIcon, TrendingUpIcon, TrendingDownIcon } from 'lucide-react';
 import { formatCurrency } from '../lib/utils';
 import { reportService, DashboardSummaryItem } from '../services/report.service';
 
@@ -32,22 +32,13 @@ export default function OverviewSection() {
   const getIcon = (label: string) => {
     switch (label) {
       case 'Total Balance':
-        return <ArrowUpIcon className="w-4 h-4 text-green-500 mr-1" />;
-      case 'Total Period Expenses':
-        return <ArrowDownIcon className="w-4 h-4 text-red-500 mr-1" />;
+        return <WalletIcon className="w-5 h-5 text-white" />;
       case 'Total Period Income':
-        return <ArrowUpIcon className="w-4 h-4 text-green-500 mr-1" />;
+        return <TrendingUpIcon className="w-5 h-5 text-white" />;
+      case 'Total Period Expenses':
+        return <TrendingDownIcon className="w-5 h-5 text-white" />;
       default:
         return null;
-    }
-  };
-
-  const getTextColor = (label: string) => {
-    switch (label) {
-      case 'Total Period Expenses':
-        return 'text-red-500';
-      default:
-        return 'text-green-500';
     }
   };
 
@@ -86,16 +77,53 @@ export default function OverviewSection() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {summaryData.map((item) => (
-        <Card key={item.label} className="bg-white dark:bg-gray-800">
-          <CardContent className="p-6">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{item.label}</h3>
-            <div className="mt-2">
-              <span className="text-2xl font-bold text-gray-900 dark:text-white">
-                {formatCurrency(item.value)}
-              </span>
-              <div className="flex items-center mt-2">
+        <Card key={item.label} className="overflow-hidden relative">
+          {/* Gradient Background */}
+          <div className={`absolute inset-0 ${
+            item.label === 'Total Balance' 
+              ? 'bg-gradient-to-br from-blue-500/10 to-indigo-500/10 dark:from-blue-500/20 dark:to-indigo-500/20'
+              : item.label === 'Total Period Income'
+              ? 'bg-gradient-to-br from-emerald-500/10 to-teal-500/10 dark:from-emerald-500/20 dark:to-teal-500/20'
+              : 'bg-gradient-to-br from-rose-500/10 to-pink-500/10 dark:from-rose-500/20 dark:to-pink-500/20'
+          }`} />
+          
+          <CardContent className="relative p-6">
+            <div className="flex items-center justify-between mb-4">
+              {/* Icon Container */}
+              <div className={`p-2 rounded-lg ${
+                item.label === 'Total Balance'
+                  ? 'bg-gradient-to-br from-blue-500 to-indigo-500'
+                  : item.label === 'Total Period Income'
+                  ? 'bg-gradient-to-br from-emerald-500 to-teal-500'
+                  : 'bg-gradient-to-br from-rose-500 to-pink-500'
+              } shadow-lg`}>
                 {getIcon(item.label)}
-                <span className={`text-sm ${getTextColor(item.label)}`}>{item.percent}%</span>
+              </div>
+              <span className={`text-sm font-medium ${
+                item.label === 'Total Balance'
+                  ? 'text-blue-600 dark:text-blue-400'
+                  : item.label === 'Total Period Income'
+                  ? 'text-emerald-600 dark:text-emerald-400'
+                  : 'text-rose-600 dark:text-rose-400'
+              }`}>
+                {item.label}
+              </span>
+            </div>
+            
+            <div className="space-y-1">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                {formatCurrency(item.value)}
+              </h3>
+              <div className="flex items-center mt-2">
+                <div className={`flex items-center ${
+                  item.label === 'Total Period Expenses' ? 'text-rose-500' : 'text-emerald-500'
+                }`}>
+                  {item.label === 'Total Period Expenses' ? 
+                    <ArrowDownIcon className="w-4 h-4 mr-1" /> : 
+                    <ArrowUpIcon className="w-4 h-4 mr-1" />
+                  }
+                  <span className="text-sm">{item.percent}%</span>
+                </div>
                 <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
                   Last month {formatCurrency(item.last_month)}
                 </span>
