@@ -19,8 +19,107 @@ interface MonthlyChartData {
   expense: number;
 }
 
-// Dummy AI analysis data
-const dummyAnalysis = "Baik, dengan senang hati saya akan melakukan analisis komprehensif terhadap data cashflow yang Anda berikan. Berikut adalah laporan analisis keuangan, disusun berdasarkan instruksi yang Anda berikan:\n\n**LAPORAN ANALISIS CASHFLOW KEUANGAN**\n\n**Periode: April 2025 - Mei 2025**\n\n**1. Ringkasan Umum per Bulan**\n\n| Bulan      | Total Pemasukan (Rp) | Total Pengeluaran (Rp) | Arus Kas Bersih (Rp) |\n| ----------- | -------------------- | --------------------- | --------------------- |\n| April 2025  | 10,000,000.0          | 5,310,000.0           | 4,690,000.0           |\n| Mei 2025    | 10,000,000.0          | 4,705,000.0           | 5,295,000.0           |\n| **Rata-rata** | **10,000,000.0**       | **5,007,500.0**         | **4,992,500.0**         |\n\n**Interpretasi:**\n\nSecara umum, terlihat bahwa keuangan Anda dalam kondisi yang baik, dengan arus kas yang surplus setiap bulan. Terdapat perbedaan pengeluaran antar bulan, yang akan dianalisis lebih lanjut.\n\n**2. Analisis Pemasukan (Income)**\n\n*   **Sumber Pemasukan:**\n    *   **Utama/Rutin:** Gaji bulanan.\n    *   **Tambahan/Tidak Tetap:** Tidak ada, hanya ada satu sumber yaitu gaji.\n*   **Stabilitas Sumber Pemasukan Utama:** Sumber pemasukan utama (gaji) terlihat sangat stabil, dengan jumlah yang konstan setiap bulan. Ini memberikan fondasi yang kuat untuk perencanaan keuangan.\n*   **Total Pemasukan dan Rata-rata:** Total pemasukan per bulan adalah Rp 10,000,000.0. Rata-rata pemasukan selama periode ini juga Rp 10,000,000.0.\n*   **Fluktuasi Pemasukan:** Tidak ada fluktuasi karena hanya ada satu sumber pemasukan yang nilainya tetap.\n\n**3. Analisis Pengeluaran (Expense)**\n\n*   **Pengeluaran Tetap/Wajib:**\n    *   Sewa Rumah/Kontrakan (Housing): Rp 1,750,000.0 (April & Mei). Ini merupakan pengeluaran terbesar dan wajib.\n*   **Pengeluaran Semi-Variabel:**\n    *   Makanan (Food): Bervariasi setiap bulan, termasuk makan sehari-hari, groceries, snack, kopi.\n    *   Transportasi (Transport): Bensin, e-money, servis motor, ojek online.\n    *   Housing: Biaya Listrik.\n*   **Pengeluaran Tidak Tetap/Insidentil:**\n    *   Kesehatan (Health): Beli obat, vitamin, suplemen, biaya pengobatan.\n    *   Belanja (Shopping): Beli pakaian, sepatu.\n    *   Donasi (Donation): Sedekah, donasi masjid, donasi panti asuhan, donasi anak yatim.\n    *   Hiburan (Entertainment): Nonton bioskop, konser, langganan Spotify.\n    *   Pendidikan (Education): Beli buku, kursus online, pelatihan online, beli alat tulis.\n    *   Lain-lain (Others_expense): Beli tanaman hias, hadiah ulang tahun, hadiah teman.\n*   **Tren Pengeluaran:** Terjadi perbedaan signifikan pada kategori pengeluaran food dan shopping di antara bulan April dan Mei. Perlu dilihat lagi apa penyebabnya, apakah terdapat kebutuhan mendesak atau tidak.\n*   **Total Pengeluaran dan Rata-rata:** Total pengeluaran bulan April adalah Rp 5,310,000.0, sedangkan bulan Mei adalah Rp 4,705,000.0. Rata-rata pengeluaran selama periode ini adalah Rp 5,007,500.0.\n\n**4. Analisis Arus Kas Bersih (Net Cash Flow)**\n\n*   **Kondisi Keuangan:** Kondisi keuangan secara keseluruhan sangat positif karena konsisten surplus setiap bulan.\n*   **Besaran Surplus/Defisit:** Surplus bulan April adalah Rp 4,690,000.0 dan surplus bulan Mei adalah Rp 5,295,000.0. Rata-rata surplus adalah Rp 4,992,500.0.\n*   **Faktor Fluktuasi Arus Kas Bersih:** Fluktuasi pada arus kas bersih terutama disebabkan oleh perbedaan pengeluaran antar bulan. Pada bulan April, pengeluaran lebih tinggi karena ada kebutuhan insidentil seperti beli obat flu, beli kaos online, dan beli buku pelajaran.\n\n**5. Observasi Kunci**\n\n*   **Kesehatan Finansial:** Kesehatan finansial secara umum baik, ditandai dengan pendapatan stabil dan surplus bulanan yang konsisten.\n*   **Kekuatan:** Pendapatan yang stabil merupakan kekuatan utama.\n*   **Kelemahan/Area Perhatian:** Adanya fluktuasi pada pengeluaran semi-variabel (food, transport) dan insidentil (kesehatan, shopping, entertainment, education). Perlu diperhatikan dan dikelola agar tidak mengganggu surplus.\n*   **Potensi:** Potensi besar dari surplus bulanan yang dapat dialokasikan untuk tujuan keuangan yang lebih strategis (dana darurat, investasi, pelunasan utang).\n\n**6. Rekomendasi**\n\nBerdasarkan analisis di atas, berikut adalah beberapa rekomendasi yang dapat dipertimbangkan:\n\n1.  **Alokasi Surplus:**\n    *   **Dana Darurat:** Prioritaskan pembentukan dana darurat yang idealnya mencakup 3-6 bulan pengeluaran rutin.\n    *   **Investasi:** Pertimbangkan diversifikasi investasi sesuai dengan profil risiko dan tujuan keuangan Anda (misal: reksa dana, saham, obligasi).\n    *   **Pelunasan Utang:** Jika ada utang dengan bunga tinggi (misal: kartu kredit), alokasikan sebagian surplus untuk mempercepat pelunasan.\n2.  **Anggaran (Budgeting):**\n    *   Buat anggaran bulanan yang lebih rinci, khususnya untuk kategori pengeluaran semi-variabel dan insidentil.\n    *   Lacak pengeluaran secara teratur dan bandingkan dengan anggaran yang telah dibuat.\n    *   Identifikasi area di mana pengeluaran dapat dioptimalkan tanpa mengorbankan kualitas hidup.\n3.  **Klarifikasi Kategori Pengeluaran:**\n    *   Review kategori pengeluaran yang ada dan pastikan sesuai dengan kebutuhan dan tujuan keuangan.\n    *   Pertimbangkan untuk membuat sub-kategori yang lebih spesifik jika diperlukan (misal: \"Food - Makan di Luar\" vs \"Food - Groceries\").\n4.  **Mengelola Pengeluaran Tidak Tetap:**\n    *   Siapkan anggaran khusus untuk pengeluaran tidak terduga (misal: perbaikan rumah, biaya kesehatan).\n    *   Pertimbangkan untuk memiliki asuransi kesehatan untuk mengurangi risiko biaya pengobatan yang besar.\n5.  **Review Keuangan Berkala:**\n    *   Lakukan review keuangan secara berkala (misal: bulanan, kuartalan) untuk memantau kinerja keuangan dan mengidentifikasi peluang perbaikan.\n    *   Evaluasi apakah tujuan keuangan jangka pendek dan jangka panjang masih relevan dan realistis.\n\nDengan menerapkan rekomendasi ini, Anda dapat meningkatkan efisiensi pengelolaan keuangan dan mencapai tujuan keuangan Anda dengan lebih efektif.\n\nSemoga laporan ini bermanfaat. Jika ada pertanyaan lebih lanjut, jangan ragu untuk bertanya.\n"
+// Update dummy data with structured JSON
+const dummyAnalysis = {
+  "ringkasan_umum": {
+    "bulan": [
+      "2025-04",
+      "2025-05"
+    ],
+    "total_pemasukan": [
+      10000000,
+      10000000
+    ],
+    "total_pengeluaran": [
+      5485000,
+      4870000
+    ],
+    "arus_kas_bersih": [
+      4515000,
+      5130000
+    ],
+    "rata_rata": {
+      "total_pemasukan": 10000000,
+      "total_pengeluaran": 5177500,
+      "arus_kas_bersih": 4822500
+    },
+    "catatan": "Data ini menunjukkan gambaran keuangan bulanan, dengan rata-rata surplus yang signifikan selama periode April-Mei 2025."
+  },
+  "analisis_pemasukan": {
+    "sumber": {
+      "utama": "Gaji (salary)",
+      "tambahan": "Tidak ada sumber pemasukan tambahan yang teridentifikasi dalam data."
+    },
+    "stabilitas": "Pemasukan dari gaji sangat stabil dan konsisten sebesar Rp10.000.000 setiap bulan, menunjukkan kekuatan finansial yang kuat dari sisi pendapatan.",
+    "fluktuasi": "Tidak ada fluktuasi pada pemasukan selama periode yang dianalisis. Pemasukan tetap stabil dari bulan ke bulan."
+  },
+  "analisis_pengeluaran": {
+    "kategori": {
+      "wajib": [
+        {
+          "category_code": "housing",
+          "description": "Sewa rumah/kontrakan (Rp1.750.000 per bulan)"
+        }
+      ],
+      "semi_variabel": [
+        {
+          "category_code": "food",
+          "description": "Pengeluaran makanan (bervariasi antara Rp1.100.000 - Rp1.120.000 per bulan)"
+        },
+        {
+          "category_code": "transport",
+          "description": "Pengeluaran transportasi (bervariasi, Rp660.000 di April, Rp235.000 di Mei)"
+        },
+        {
+          "category_code": "health",
+          "description": "Pengeluaran kesehatan (bervariasi, Rp410.000 di April, Rp340.000 di Mei)"
+        },
+        {
+          "category_code": "housing",
+          "description": "Pembayaran listrik (Rp180.000 di April)"
+        }
+      ],
+      "tidak_tetap": [
+        {
+          "category_code": "shopping",
+          "description": "Pembelian barang (bervariasi, Rp540.000 di April, Rp575.000 di Mei)"
+        },
+        {
+          "category_code": "donation",
+          "description": "Donasi (bervariasi, Rp295.000 di April, Rp300.000 di Mei)"
+        },
+        {
+          "category_code": "entertainment",
+          "description": "Hiburan (bervariasi, Rp270.000 di April, Rp240.000 di Mei)"
+        },
+        {
+          "category_code": "education",
+          "description": "Pendidikan (bervariasi, Rp830.000 di April, Rp620.000 di Mei)"
+        },
+        {
+          "category_code": "others_expense",
+          "description": "Pengeluaran lain-lain (bervariasi, Rp375.000 di April, Rp200.000 di Mei)"
+        }
+      ]
+    },
+    "tren": "Pengeluaran keseluruhan di bulan Mei (Rp4.870.000) lebih rendah dibanding April (Rp5.485.000), terutama karena penurunan pada kategori transportasi dan pendidikan. Pengeluaran makanan tetap menjadi salah satu yang terbesar dan stabil."
+  },
+  "observasi_kunci": {
+    "kesehatan_finansial": "Kesehatan finansial Anda tergolong sangat baik dengan konsistensi surplus bulanan yang signifikan.",
+    "kekuatan": "Pendapatan yang stabil dan konsisten setiap bulan, serta kemampuan untuk secara konsisten mencetak surplus kas yang besar.",
+    "kelemahan": "Ketergantungan pada satu sumber pemasukan (gaji) dapat menjadi potensi risiko. Kategori 'others_expense' masih terlalu umum dan membutuhkan rincian lebih lanjut untuk analisis yang optimal."
+  },
+  "rekomendasi": {
+    "alokasi_surplus": {
+      "dana_darurat": "Segera bangun dana darurat yang idealnya mencakup 3-6 bulan pengeluaran wajib atau total pengeluaran Anda (sekitar Rp15.000.000 - Rp30.000.000). Simpan di rekening terpisah dan mudah diakses.",
+      "investasi": "Setelah dana darurat terpenuhi, alokasikan surplus bulanan ke instrumen investasi yang sesuai dengan profil risiko dan tujuan keuangan Anda (misalnya, reksa dana, saham, atau obligasi) untuk pertumbuhan kekayaan jangka panjang."
+    },
+    "anggaran_review": {
+      "anggaran": "Implementasikan anggaran yang lebih rinci, khususnya untuk pengeluaran semi-variabel dan tidak tetap. Pertimbangkan untuk menetapkan batas pengeluaran per kategori. Ini akan membantu dalam kontrol pengeluaran yang lebih ketat dan mengidentifikasi area potensial untuk penghematan.",
+      "review": "Lakukan tinjauan keuangan bulanan untuk memantau arus kas, melacak pengeluaran, dan menyesuaikan rencana keuangan Anda jika diperlukan. Pertimbangkan juga untuk mendiversifikasi sumber pemasukan di masa mendatang untuk meningkatkan keamanan finansial."
+    }
+  }
+};
 
 export default function Reports() {
   const [categoryReport, setCategoryReport] = useState<CategoryReport[]>([]);
@@ -97,10 +196,10 @@ export default function Reports() {
         {/* Period Selection */}
         <Card>
           <CardContent className="p-4">
-            <div className="flex flex-col md:flex-row gap-4 items-center">
-              <div className="flex items-center space-x-2">
-                <CalendarIcon className="w-4 h-4 text-gray-500" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Period:</span>
+            <div className="flex items-center gap-3 w-fit">
+              <div className="flex items-center gap-2 min-w-[80px]">
+                <CalendarIcon className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Period:</span>
               </div>
 
               {/* Year Selection */}
@@ -108,7 +207,7 @@ export default function Reports() {
                 value={selectedYear?.toString()} 
                 onValueChange={(value) => setSelectedYear(parseInt(value))}
               >
-                <Select.Trigger className="inline-flex items-center justify-between px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white min-w-[120px]">
+                <Select.Trigger className="inline-flex items-center justify-between px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white w-[140px]">
                   <Select.Value placeholder="Select Year" />
                 </Select.Trigger>
                 <Select.Portal>
@@ -127,7 +226,6 @@ export default function Reports() {
                   </Select.Content>
                 </Select.Portal>
               </Select.Root>
-
             </div>
           </CardContent>
         </Card>
@@ -314,6 +412,16 @@ export default function Reports() {
                 <BrainCircuit className="w-5 h-5 text-blue-500" />
                 <CardTitle className="text-lg text-gray-900 dark:text-white">AI Financial Analysis</CardTitle>
               </div>
+              <button 
+                className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 dark:from-emerald-600 dark:to-teal-600 hover:from-emerald-600 hover:to-teal-600 dark:hover:from-emerald-700 dark:hover:to-teal-700 text-white rounded-lg transition-all duration-200 shadow-sm hover:shadow-md focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed group backdrop-blur-sm bg-opacity-90 dark:bg-opacity-90"
+                onClick={() => {
+                  // TODO: Integrate with API
+                  console.log('Analyze clicked');
+                }}
+              >
+                <BrainCircuit className="w-4 h-4 mr-2 group-hover:animate-pulse text-white/90" />
+                <span className="font-medium tracking-wide">Analyze</span>
+              </button>
             </div>
           </CardHeader>
           <CardContent>
@@ -334,30 +442,39 @@ export default function Reports() {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr className="border-b border-blue-100 dark:border-blue-800/50">
-                        <td className="px-4 py-2 text-sm text-blue-900 dark:text-blue-100">April 2025</td>
-                        <td className="px-4 py-2 text-sm text-right text-green-600 dark:text-green-400">+10,000,000</td>
-                        <td className="px-4 py-2 text-sm text-right text-red-600 dark:text-red-400">-5,310,000</td>
-                        <td className="px-4 py-2 text-sm text-right text-green-600 dark:text-green-400">+4,690,000</td>
-                      </tr>
-                      <tr className="border-b border-blue-100 dark:border-blue-800/50">
-                        <td className="px-4 py-2 text-sm text-blue-900 dark:text-blue-100">Mei 2025</td>
-                        <td className="px-4 py-2 text-sm text-right text-green-600 dark:text-green-400">+10,000,000</td>
-                        <td className="px-4 py-2 text-sm text-right text-red-600 dark:text-red-400">-4,705,000</td>
-                        <td className="px-4 py-2 text-sm text-right text-green-600 dark:text-green-400">+5,295,000</td>
-                      </tr>
+                      {dummyAnalysis.ringkasan_umum.bulan.map((bulan, index) => (
+                        <tr key={bulan} className="border-b border-blue-100 dark:border-blue-800/50">
+                          <td className="px-4 py-2 text-sm text-blue-900 dark:text-blue-100">
+                            {new Date(bulan).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+                          </td>
+                          <td className="px-4 py-2 text-sm text-right text-green-600 dark:text-green-400">
+                            +{formatCurrency(dummyAnalysis.ringkasan_umum.total_pemasukan[index])}
+                          </td>
+                          <td className="px-4 py-2 text-sm text-right text-red-600 dark:text-red-400">
+                            -{formatCurrency(dummyAnalysis.ringkasan_umum.total_pengeluaran[index])}
+                          </td>
+                          <td className="px-4 py-2 text-sm text-right text-green-600 dark:text-green-400">
+                            +{formatCurrency(dummyAnalysis.ringkasan_umum.arus_kas_bersih[index])}
+                          </td>
+                        </tr>
+                      ))}
                       <tr className="bg-blue-50 dark:bg-blue-900/30">
                         <td className="px-4 py-2 text-sm font-medium text-blue-900 dark:text-blue-100">Rata-rata</td>
-                        <td className="px-4 py-2 text-sm text-right font-medium text-green-600 dark:text-green-400">+10,000,000</td>
-                        <td className="px-4 py-2 text-sm text-right font-medium text-red-600 dark:text-red-400">-5,007,500</td>
-                        <td className="px-4 py-2 text-sm text-right font-medium text-green-600 dark:text-green-400">+4,992,500</td>
+                        <td className="px-4 py-2 text-sm text-right font-medium text-green-600 dark:text-green-400">
+                          +{formatCurrency(dummyAnalysis.ringkasan_umum.rata_rata.total_pemasukan)}
+                        </td>
+                        <td className="px-4 py-2 text-sm text-right font-medium text-red-600 dark:text-red-400">
+                          -{formatCurrency(dummyAnalysis.ringkasan_umum.rata_rata.total_pengeluaran)}
+                        </td>
+                        <td className="px-4 py-2 text-sm text-right font-medium text-green-600 dark:text-green-400">
+                          +{formatCurrency(dummyAnalysis.ringkasan_umum.rata_rata.arus_kas_bersih)}
+                        </td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
                 <p className="mt-4 text-sm text-blue-800 dark:text-blue-200">
-                  Secara umum, terlihat bahwa keuangan Anda dalam kondisi yang baik, dengan arus kas yang surplus setiap bulan. 
-                  Terdapat perbedaan pengeluaran antar bulan, yang akan dianalisis lebih lanjut.
+                  {dummyAnalysis.ringkasan_umum.catatan}
                 </p>
               </div>
 
@@ -374,13 +491,13 @@ export default function Reports() {
                         <li className="flex items-start gap-2">
                           <span className="text-green-600 dark:text-green-400">•</span>
                           <span className="text-sm text-green-800 dark:text-green-200">
-                            <span className="font-medium">Utama/Rutin:</span> Gaji bulanan
+                            <span className="font-medium">Utama/Rutin:</span> {dummyAnalysis.analisis_pemasukan.sumber.utama}
                           </span>
                         </li>
                         <li className="flex items-start gap-2">
                           <span className="text-green-600 dark:text-green-400">•</span>
                           <span className="text-sm text-green-800 dark:text-green-200">
-                            <span className="font-medium">Tambahan/Tidak Tetap:</span> Tidak ada
+                            <span className="font-medium">Tambahan/Tidak Tetap:</span> {dummyAnalysis.analisis_pemasukan.sumber.tambahan}
                           </span>
                         </li>
                       </ul>
@@ -391,13 +508,13 @@ export default function Reports() {
                         <li className="flex items-start gap-2">
                           <span className="text-green-600 dark:text-green-400">•</span>
                           <span className="text-sm text-green-800 dark:text-green-200">
-                            Sumber pemasukan utama (gaji) terlihat sangat stabil
+                            {dummyAnalysis.analisis_pemasukan.stabilitas}
                           </span>
                         </li>
                         <li className="flex items-start gap-2">
                           <span className="text-green-600 dark:text-green-400">•</span>
                           <span className="text-sm text-green-800 dark:text-green-200">
-                            Tidak ada fluktuasi karena nilai tetap
+                            {dummyAnalysis.analisis_pemasukan.fluktuasi}
                           </span>
                         </li>
                       </ul>
@@ -416,22 +533,34 @@ export default function Reports() {
                       <div className="grid grid-cols-2 gap-2">
                         <div className="bg-white/50 dark:bg-red-900/30 rounded-lg p-3">
                           <h4 className="text-xs font-medium text-red-700 dark:text-red-300 mb-1">Tetap/Wajib</h4>
-                          <p className="text-sm text-red-800 dark:text-red-200">Sewa Rumah: Rp 1,750,000</p>
+                          <ul className="space-y-1">
+                            {dummyAnalysis.analisis_pengeluaran.kategori.wajib.map((item, index) => (
+                              <li key={index} className="text-sm text-red-800 dark:text-red-200">{item.description}</li>
+                            ))}
+                          </ul>
                         </div>
                         <div className="bg-white/50 dark:bg-red-900/30 rounded-lg p-3">
                           <h4 className="text-xs font-medium text-red-700 dark:text-red-300 mb-1">Semi-Variabel</h4>
-                          <p className="text-sm text-red-800 dark:text-red-200">Makanan, Transport, Listrik</p>
+                          <ul className="space-y-1">
+                            {dummyAnalysis.analisis_pengeluaran.kategori.semi_variabel.map((item, index) => (
+                              <li key={index} className="text-sm text-red-800 dark:text-red-200">{item.description}</li>
+                            ))}
+                          </ul>
                         </div>
                         <div className="bg-white/50 dark:bg-red-900/30 rounded-lg p-3 col-span-2">
                           <h4 className="text-xs font-medium text-red-700 dark:text-red-300 mb-1">Tidak Tetap</h4>
-                          <p className="text-sm text-red-800 dark:text-red-200">Kesehatan, Belanja, Donasi, Hiburan, Pendidikan</p>
+                          <ul className="space-y-1">
+                            {dummyAnalysis.analisis_pengeluaran.kategori.tidak_tetap.map((item, index) => (
+                              <li key={index} className="text-sm text-red-800 dark:text-red-200">{item.description}</li>
+                            ))}
+                          </ul>
                         </div>
                       </div>
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-red-800 dark:text-red-200 mb-2">Tren Pengeluaran</h3>
                       <p className="text-sm text-red-800 dark:text-red-200">
-                        Terjadi perbedaan signifikan pada kategori pengeluaran food dan shopping di antara bulan April dan Mei.
+                        {dummyAnalysis.analisis_pengeluaran.tren}
                       </p>
                     </div>
                   </div>
@@ -449,17 +578,17 @@ export default function Reports() {
                     <div className="bg-white/50 dark:bg-purple-900/30 rounded-lg p-4">
                       <h3 className="text-sm font-medium text-purple-800 dark:text-purple-200 mb-2">Kesehatan Finansial</h3>
                       <p className="text-sm text-purple-800 dark:text-purple-200">
-                        Kesehatan finansial secara umum baik, ditandai dengan pendapatan stabil dan surplus bulanan yang konsisten.
+                        {dummyAnalysis.observasi_kunci.kesehatan_finansial}
                       </p>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="bg-white/50 dark:bg-purple-900/30 rounded-lg p-3">
                         <h4 className="text-xs font-medium text-purple-700 dark:text-purple-300 mb-1">Kekuatan</h4>
-                        <p className="text-sm text-purple-800 dark:text-purple-200">Pendapatan yang stabil</p>
+                        <p className="text-sm text-purple-800 dark:text-purple-200">{dummyAnalysis.observasi_kunci.kekuatan}</p>
                       </div>
                       <div className="bg-white/50 dark:bg-purple-900/30 rounded-lg p-3">
                         <h4 className="text-xs font-medium text-purple-700 dark:text-purple-300 mb-1">Kelemahan</h4>
-                        <p className="text-sm text-purple-800 dark:text-purple-200">Fluktuasi pengeluaran variabel</p>
+                        <p className="text-sm text-purple-800 dark:text-purple-200">{dummyAnalysis.observasi_kunci.kelemahan}</p>
                       </div>
                     </div>
                   </div>
@@ -477,13 +606,13 @@ export default function Reports() {
                         <li className="flex items-start gap-2">
                           <span className="text-amber-600 dark:text-amber-400">•</span>
                           <span className="text-sm text-amber-800 dark:text-amber-200">
-                            <span className="font-medium">Dana Darurat:</span> 3-6 bulan pengeluaran rutin
+                            <span className="font-medium">Dana Darurat:</span> {dummyAnalysis.rekomendasi.alokasi_surplus.dana_darurat}
                           </span>
                         </li>
                         <li className="flex items-start gap-2">
                           <span className="text-amber-600 dark:text-amber-400">•</span>
                           <span className="text-sm text-amber-800 dark:text-amber-200">
-                            <span className="font-medium">Investasi:</span> Diversifikasi sesuai profil risiko
+                            <span className="font-medium">Investasi:</span> {dummyAnalysis.rekomendasi.alokasi_surplus.investasi}
                           </span>
                         </li>
                       </ul>
@@ -494,13 +623,13 @@ export default function Reports() {
                         <li className="flex items-start gap-2">
                           <span className="text-amber-600 dark:text-amber-400">•</span>
                           <span className="text-sm text-amber-800 dark:text-amber-200">
-                            Buat anggaran bulanan yang lebih rinci
+                            <span className="font-medium">Anggaran:</span> {dummyAnalysis.rekomendasi.anggaran_review.anggaran}
                           </span>
                         </li>
                         <li className="flex items-start gap-2">
                           <span className="text-amber-600 dark:text-amber-400">•</span>
                           <span className="text-sm text-amber-800 dark:text-amber-200">
-                            Lakukan review keuangan berkala
+                            <span className="font-medium">Review:</span> {dummyAnalysis.rekomendasi.anggaran_review.review}
                           </span>
                         </li>
                       </ul>
