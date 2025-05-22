@@ -25,22 +25,28 @@ import { transactionService } from '../services/transaction.service';
 import { toast } from 'sonner';
 import type { TooltipProps } from 'recharts';
 
-// Dummy data for charts
-const cashflowData = [
-  { day: 'Sun', income: 1000, expense: 700 },
-  { day: 'Mon', income: 800, expense: 400 },
-  { day: 'Tue', income: 1200, expense: 800 },
-  { day: 'Wed', income: 600, expense: 400 },
-  { day: 'Thu', income: 1400, expense: 900 },
-  { day: 'Fri', income: 1100, expense: 700 },
-  { day: 'Sat', income: 1300, expense: 800 }
+// Update period options to show years
+const periodOptions = [
+  { label: '2024', value: '2024' },
+  { label: '2023', value: '2023' },
+  { label: '2022', value: '2022' },
+  { label: '2021', value: '2021' }
 ];
 
-const periodOptions = [
-  { label: 'Last 7 Days', value: '7d' },
-  { label: 'Last 30 Days', value: '30d' },
-  { label: 'Last 90 Days', value: '90d' },
-  { label: 'Last 12 Months', value: '12m' }
+// Update dummy data for yearly view
+const cashflowData = [
+  { month: 'Jan', income: 1500000, expense: 1200000 },
+  { month: 'Feb', income: 1800000, expense: 1400000 },
+  { month: 'Mar', income: 2200000, expense: 1600000 },
+  { month: 'Apr', income: 1900000, expense: 1500000 },
+  { month: 'May', income: 2100000, expense: 1700000 },
+  { month: 'Jun', income: 2400000, expense: 1800000 },
+  { month: 'Jul', income: 2300000, expense: 1900000 },
+  { month: 'Aug', income: 2500000, expense: 2000000 },
+  { month: 'Sep', income: 2200000, expense: 1800000 },
+  { month: 'Oct', income: 2600000, expense: 2100000 },
+  { month: 'Nov', income: 2800000, expense: 2200000 },
+  { month: 'Dec', income: 3000000, expense: 2400000 }
 ];
 
 interface Category {
@@ -248,13 +254,16 @@ export default function Dashboard() {
             <Card className="overflow-hidden">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
                 <div className="space-y-1">
-                  <CardTitle className="text-xl font-semibold text-gray-900 dark:text-white">
+                  <CardTitle className="text-xl font-semibold">
                     Cashflow
                   </CardTitle>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Monthly income and expenses overview
+                  </p>
                 </div>
-                <Select defaultValue="7d">
+                <Select defaultValue="2024">
                   <SelectTrigger className="w-[140px] border-gray-200 dark:border-gray-700">
-                    Last 7 Days
+                    <span className="text-sm">2024</span>
                   </SelectTrigger>
                   <SelectContent>
                     {periodOptions.map((option) => (
@@ -286,11 +295,11 @@ export default function Dashboard() {
                     </div>
                   </div>
                 </div>
-                <div className="h-[200px] md:h-[300px]">
+                <div className="h-[300px] md:h-[400px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart 
                       data={cashflowData} 
-                      margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+                      margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
                     >
                       <defs>
                         <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
@@ -303,7 +312,7 @@ export default function Dashboard() {
                         </linearGradient>
                       </defs>
                       <XAxis 
-                        dataKey="day" 
+                        dataKey="month" 
                         axisLine={false}
                         tickLine={false}
                         tick={{ fill: '#888888', fontSize: 12 }}
@@ -313,7 +322,7 @@ export default function Dashboard() {
                         axisLine={false}
                         tickLine={false}
                         tick={{ fill: '#888888', fontSize: 12 }}
-                        tickFormatter={(value) => `$${value}`}
+                        tickFormatter={(value) => `Rp${(value / 1000000).toFixed(1)}M`}
                       />
                       <Tooltip 
                         contentStyle={{
@@ -322,7 +331,7 @@ export default function Dashboard() {
                           borderRadius: '8px',
                           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                         }}
-                        formatter={(value) => [`$${value}`, '']}
+                        formatter={(value) => [`Rp${formatCurrency(value)}`, '']}
                         labelStyle={{ color: '#888888' }}
                       />
                       <Area
@@ -466,7 +475,7 @@ export default function Dashboard() {
             {/* Most Expenses Section */}
             <Card className="bg-white dark:bg-gray-800">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-base font-medium">Most expenses</CardTitle>
+                <CardTitle className="text-base font-medium">Most Expenses</CardTitle>
                 <button className="text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center">
                   Details
                   <ChevronRight className="h-4 w-4 ml-1" />
