@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { formatCurrency } from '../lib/utils';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { CalendarIcon, DownloadIcon, BrainCircuit } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
+import { CalendarIcon, DownloadIcon, BrainCircuit, X } from 'lucide-react';
 import * as Select from '@radix-ui/react-select';
-import { reportService } from '../services/report.service';
-
+import * as Tooltip from '@radix-ui/react-tooltip';
+import { reportService, AnalysisResponse } from '../services/report.service';
 
 interface CategoryReport {
   category: string;
@@ -19,108 +19,6 @@ interface MonthlyChartData {
   expense: number;
 }
 
-// Update dummy data with structured JSON
-const dummyAnalysis = {
-  "ringkasan_umum": {
-    "bulan": [
-      "2025-04",
-      "2025-05"
-    ],
-    "total_pemasukan": [
-      10000000,
-      10000000
-    ],
-    "total_pengeluaran": [
-      5485000,
-      4870000
-    ],
-    "arus_kas_bersih": [
-      4515000,
-      5130000
-    ],
-    "rata_rata": {
-      "total_pemasukan": 10000000,
-      "total_pengeluaran": 5177500,
-      "arus_kas_bersih": 4822500
-    },
-    "catatan": "Data ini menunjukkan gambaran keuangan bulanan, dengan rata-rata surplus yang signifikan selama periode April-Mei 2025."
-  },
-  "analisis_pemasukan": {
-    "sumber": {
-      "utama": "Gaji (salary)",
-      "tambahan": "Tidak ada sumber pemasukan tambahan yang teridentifikasi dalam data."
-    },
-    "stabilitas": "Pemasukan dari gaji sangat stabil dan konsisten sebesar Rp10.000.000 setiap bulan, menunjukkan kekuatan finansial yang kuat dari sisi pendapatan.",
-    "fluktuasi": "Tidak ada fluktuasi pada pemasukan selama periode yang dianalisis. Pemasukan tetap stabil dari bulan ke bulan."
-  },
-  "analisis_pengeluaran": {
-    "kategori": {
-      "wajib": [
-        {
-          "category_code": "housing",
-          "description": "Sewa rumah/kontrakan (Rp1.750.000 per bulan)"
-        }
-      ],
-      "semi_variabel": [
-        {
-          "category_code": "food",
-          "description": "Pengeluaran makanan (bervariasi antara Rp1.100.000 - Rp1.120.000 per bulan)"
-        },
-        {
-          "category_code": "transport",
-          "description": "Pengeluaran transportasi (bervariasi, Rp660.000 di April, Rp235.000 di Mei)"
-        },
-        {
-          "category_code": "health",
-          "description": "Pengeluaran kesehatan (bervariasi, Rp410.000 di April, Rp340.000 di Mei)"
-        },
-        {
-          "category_code": "housing",
-          "description": "Pembayaran listrik (Rp180.000 di April)"
-        }
-      ],
-      "tidak_tetap": [
-        {
-          "category_code": "shopping",
-          "description": "Pembelian barang (bervariasi, Rp540.000 di April, Rp575.000 di Mei)"
-        },
-        {
-          "category_code": "donation",
-          "description": "Donasi (bervariasi, Rp295.000 di April, Rp300.000 di Mei)"
-        },
-        {
-          "category_code": "entertainment",
-          "description": "Hiburan (bervariasi, Rp270.000 di April, Rp240.000 di Mei)"
-        },
-        {
-          "category_code": "education",
-          "description": "Pendidikan (bervariasi, Rp830.000 di April, Rp620.000 di Mei)"
-        },
-        {
-          "category_code": "others_expense",
-          "description": "Pengeluaran lain-lain (bervariasi, Rp375.000 di April, Rp200.000 di Mei)"
-        }
-      ]
-    },
-    "tren": "Pengeluaran keseluruhan di bulan Mei (Rp4.870.000) lebih rendah dibanding April (Rp5.485.000), terutama karena penurunan pada kategori transportasi dan pendidikan. Pengeluaran makanan tetap menjadi salah satu yang terbesar dan stabil."
-  },
-  "observasi_kunci": {
-    "kesehatan_finansial": "Kesehatan finansial Anda tergolong sangat baik dengan konsistensi surplus bulanan yang signifikan.",
-    "kekuatan": "Pendapatan yang stabil dan konsisten setiap bulan, serta kemampuan untuk secara konsisten mencetak surplus kas yang besar.",
-    "kelemahan": "Ketergantungan pada satu sumber pemasukan (gaji) dapat menjadi potensi risiko. Kategori 'others_expense' masih terlalu umum dan membutuhkan rincian lebih lanjut untuk analisis yang optimal."
-  },
-  "rekomendasi": {
-    "alokasi_surplus": {
-      "dana_darurat": "Segera bangun dana darurat yang idealnya mencakup 3-6 bulan pengeluaran wajib atau total pengeluaran Anda (sekitar Rp15.000.000 - Rp30.000.000). Simpan di rekening terpisah dan mudah diakses.",
-      "investasi": "Setelah dana darurat terpenuhi, alokasikan surplus bulanan ke instrumen investasi yang sesuai dengan profil risiko dan tujuan keuangan Anda (misalnya, reksa dana, saham, atau obligasi) untuk pertumbuhan kekayaan jangka panjang."
-    },
-    "anggaran_review": {
-      "anggaran": "Implementasikan anggaran yang lebih rinci, khususnya untuk pengeluaran semi-variabel dan tidak tetap. Pertimbangkan untuk menetapkan batas pengeluaran per kategori. Ini akan membantu dalam kontrol pengeluaran yang lebih ketat dan mengidentifikasi area potensial untuk penghematan.",
-      "review": "Lakukan tinjauan keuangan bulanan untuk memantau arus kas, melacak pengeluaran, dan menyesuaikan rencana keuangan Anda jika diperlukan. Pertimbangkan juga untuk mendiversifikasi sumber pemasukan di masa mendatang untuk meningkatkan keamanan finansial."
-    }
-  }
-};
-
 export default function Reports() {
   const [categoryReport, setCategoryReport] = useState<CategoryReport[]>([]);
   const [chartData, setChartData] = useState<MonthlyChartData[]>([]);
@@ -129,6 +27,10 @@ export default function Reports() {
   const [isChartLoading, setIsChartLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [chartError, setChartError] = useState<string | null>(null);
+  const [analysisData, setAnalysisData] = useState<AnalysisResponse['data'] | null>(null);
+  const [isAnalysisLoading, setIsAnalysisLoading] = useState(true);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [showWarning, setShowWarning] = useState(true);
 
   // Generate years for selection (current year and 5 years back)
   const years = Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i);
@@ -173,10 +75,83 @@ export default function Reports() {
     fetchChartData();
   }, [selectedYear]);
 
+  useEffect(() => {
+    const fetchAnalysisData = async () => {
+      try {
+        setIsAnalysisLoading(true);
+        setAnalysisError(null);
+        const response = await reportService.getLatestAnalysis();
+        if (response.status && response.data) {
+          setAnalysisData(response.data);
+        }
+      } catch (error: any) {
+        console.error('Failed to fetch analysis data:', error);
+        // Only set error if it's not a 404 (not found) error
+        if (error.code !== 404) {
+          setAnalysisError('Failed to load financial analysis. Please try again later.');
+        }
+      } finally {
+        setIsAnalysisLoading(false);
+      }
+    };
+
+    fetchAnalysisData();
+  }, []);
+
   // Calculate total balance
   const totalBalance = categoryReport.reduce((sum, item) => 
     sum + (item.type === 'INCOME' ? item.amount : -item.amount), 0
   );
+
+  const handleAnalyze = async () => {
+    try {
+      setIsAnalysisLoading(true);
+      setAnalysisError(null);
+      await reportService.analyzeFinancial();
+      // After successful analysis, fetch the latest analysis data
+      const response = await reportService.getLatestAnalysis();
+      if (response.status && response.data) {
+        setAnalysisData(response.data);
+      }
+    } catch (error) {
+      console.error('Failed to analyze financial data:', error);
+      setAnalysisError('Failed to analyze financial data. Please try again later.');
+    } finally {
+      setIsAnalysisLoading(false);
+    }
+  };
+
+  const isAnalyzeButtonDisabled = () => {
+    if (!analysisData?.created_at) return false;
+    
+    const lastAnalysisDate = new Date(analysisData.created_at);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - lastAnalysisDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays < 7;
+  };
+
+  const getAnalyzeButtonTooltip = () => {
+    if (!analysisData?.created_at) return '';
+    
+    const lastAnalysisDate = new Date(analysisData.created_at);
+    const nextAvailableDate = new Date(lastAnalysisDate);
+    nextAvailableDate.setDate(nextAvailableDate.getDate() + 7);
+    
+    return (
+      <div className="flex flex-col gap-1">
+        <span className="font-medium">Next Analysis Available</span>
+        <span className="text-sm text-gray-400">
+          {nextAvailableDate.toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+          })}
+        </span>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen">
@@ -268,7 +243,7 @@ export default function Reports() {
                         tick={{ fill: '#6B7280' }}
                         axisLine={{ stroke: '#374151', opacity: 0.2 }}
                       />
-                      <Tooltip 
+                      <RechartsTooltip 
                         formatter={(value: number) => formatCurrency(value)}
                         contentStyle={{
                           backgroundColor: 'rgb(31 41 55)',
@@ -412,232 +387,329 @@ export default function Reports() {
                 <BrainCircuit className="w-5 h-5 text-blue-500" />
                 <CardTitle className="text-lg text-gray-900 dark:text-white">AI Financial Analysis</CardTitle>
               </div>
-              <button 
-                className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 dark:from-emerald-600 dark:to-teal-600 hover:from-emerald-600 hover:to-teal-600 dark:hover:from-emerald-700 dark:hover:to-teal-700 text-white rounded-lg transition-all duration-200 shadow-sm hover:shadow-md focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed group backdrop-blur-sm bg-opacity-90 dark:bg-opacity-90"
-                onClick={() => {
-                  // TODO: Integrate with API
-                  console.log('Analyze clicked');
-                }}
-              >
-                <BrainCircuit className="w-4 h-4 mr-2 group-hover:animate-pulse text-white/90" />
-                <span className="font-medium tracking-wide">Analyze</span>
-              </button>
+              <div className="flex items-center gap-4">
+                {!isAnalysisLoading && !analysisError && analysisData && (
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    Generated: {new Date(analysisData.created_at).toLocaleDateString('id-ID', { 
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </span>
+                )}
+                <Tooltip.Provider>
+                  <Tooltip.Root>
+                    <Tooltip.Trigger asChild>
+                      <button 
+                        className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 dark:from-emerald-600 dark:to-teal-600 hover:from-emerald-600 hover:to-teal-600 dark:hover:from-emerald-700 dark:hover:to-teal-700 text-white rounded-lg transition-all duration-200 shadow-sm hover:shadow-md focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed group backdrop-blur-sm bg-opacity-90 dark:bg-opacity-90"
+                        onClick={handleAnalyze}
+                        disabled={isAnalysisLoading || isAnalyzeButtonDisabled()}
+                      >
+                        <BrainCircuit className="w-4 h-4 mr-2 group-hover:animate-pulse text-white/90" />
+                        <span className="font-medium tracking-wide">
+                          {isAnalysisLoading ? 'Analyzing...' : 'Analyze'}
+                        </span>
+                      </button>
+                    </Tooltip.Trigger>
+                    {isAnalyzeButtonDisabled() && (
+                      <Tooltip.Portal>
+                        <Tooltip.Content
+                          className="z-50 overflow-hidden rounded-md bg-gray-900 px-3 py-2 text-sm text-gray-50 shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
+                          sideOffset={5}
+                        >
+                          {getAnalyzeButtonTooltip()}
+                          <Tooltip.Arrow className="fill-gray-900" />
+                        </Tooltip.Content>
+                      </Tooltip.Portal>
+                    )}
+                  </Tooltip.Root>
+                </Tooltip.Provider>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="prose dark:prose-invert max-w-none">
-              {/* Overview Section */}
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6 mb-6">
-                <h2 className="text-xl font-semibold text-blue-900 dark:text-blue-100 mb-4 flex items-center gap-2">
-                  <span>📊</span> Ringkasan Umum
-                </h2>
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="border-b border-blue-200 dark:border-blue-800">
-                        <th className="px-4 py-2 text-left text-sm font-medium text-blue-700 dark:text-blue-300">Bulan</th>
-                        <th className="px-4 py-2 text-right text-sm font-medium text-blue-700 dark:text-blue-300">Total Pemasukan</th>
-                        <th className="px-4 py-2 text-right text-sm font-medium text-blue-700 dark:text-blue-300">Total Pengeluaran</th>
-                        <th className="px-4 py-2 text-right text-sm font-medium text-blue-700 dark:text-blue-300">Arus Kas Bersih</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {dummyAnalysis.ringkasan_umum.bulan.map((bulan, index) => (
-                        <tr key={bulan} className="border-b border-blue-100 dark:border-blue-800/50">
-                          <td className="px-4 py-2 text-sm text-blue-900 dark:text-blue-100">
-                            {new Date(bulan).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-right text-green-600 dark:text-green-400">
-                            +{formatCurrency(dummyAnalysis.ringkasan_umum.total_pemasukan[index])}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-right text-red-600 dark:text-red-400">
-                            -{formatCurrency(dummyAnalysis.ringkasan_umum.total_pengeluaran[index])}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-right text-green-600 dark:text-green-400">
-                            +{formatCurrency(dummyAnalysis.ringkasan_umum.arus_kas_bersih[index])}
-                          </td>
-                        </tr>
-                      ))}
-                      <tr className="bg-blue-50 dark:bg-blue-900/30">
-                        <td className="px-4 py-2 text-sm font-medium text-blue-900 dark:text-blue-100">Rata-rata</td>
-                        <td className="px-4 py-2 text-sm text-right font-medium text-green-600 dark:text-green-400">
-                          +{formatCurrency(dummyAnalysis.ringkasan_umum.rata_rata.total_pemasukan)}
-                        </td>
-                        <td className="px-4 py-2 text-sm text-right font-medium text-red-600 dark:text-red-400">
-                          -{formatCurrency(dummyAnalysis.ringkasan_umum.rata_rata.total_pengeluaran)}
-                        </td>
-                        <td className="px-4 py-2 text-sm text-right font-medium text-green-600 dark:text-green-400">
-                          +{formatCurrency(dummyAnalysis.ringkasan_umum.rata_rata.arus_kas_bersih)}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <p className="mt-4 text-sm text-blue-800 dark:text-blue-200">
-                  {dummyAnalysis.ringkasan_umum.catatan}
-                </p>
+            {isAnalysisLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Income Analysis */}
-                <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6">
-                  <h2 className="text-xl font-semibold text-green-900 dark:text-green-100 mb-4 flex items-center gap-2">
-                    <span>💰</span> Analisis Pemasukan
-                  </h2>
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">Sumber Pemasukan</h3>
-                      <ul className="space-y-2">
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 dark:text-green-400">•</span>
-                          <span className="text-sm text-green-800 dark:text-green-200">
-                            <span className="font-medium">Utama/Rutin:</span> {dummyAnalysis.analisis_pemasukan.sumber.utama}
-                          </span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 dark:text-green-400">•</span>
-                          <span className="text-sm text-green-800 dark:text-green-200">
-                            <span className="font-medium">Tambahan/Tidak Tetap:</span> {dummyAnalysis.analisis_pemasukan.sumber.tambahan}
-                          </span>
-                        </li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">Stabilitas & Fluktuasi</h3>
-                      <ul className="space-y-2">
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 dark:text-green-400">•</span>
-                          <span className="text-sm text-green-800 dark:text-green-200">
-                            {dummyAnalysis.analisis_pemasukan.stabilitas}
-                          </span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 dark:text-green-400">•</span>
-                          <span className="text-sm text-green-800 dark:text-green-200">
-                            {dummyAnalysis.analisis_pemasukan.fluktuasi}
-                          </span>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Expense Analysis */}
-                <div className="bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 rounded-lg p-6">
-                  <h2 className="text-xl font-semibold text-red-900 dark:text-red-100 mb-4 flex items-center gap-2">
-                    <span>📉</span> Analisis Pengeluaran
-                  </h2>
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-sm font-medium text-red-800 dark:text-red-200 mb-2">Kategori Pengeluaran</h3>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="bg-white/50 dark:bg-red-900/30 rounded-lg p-3">
-                          <h4 className="text-xs font-medium text-red-700 dark:text-red-300 mb-1">Tetap/Wajib</h4>
-                          <ul className="space-y-1">
-                            {dummyAnalysis.analisis_pengeluaran.kategori.wajib.map((item, index) => (
-                              <li key={index} className="text-sm text-red-800 dark:text-red-200">{item.description}</li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div className="bg-white/50 dark:bg-red-900/30 rounded-lg p-3">
-                          <h4 className="text-xs font-medium text-red-700 dark:text-red-300 mb-1">Semi-Variabel</h4>
-                          <ul className="space-y-1">
-                            {dummyAnalysis.analisis_pengeluaran.kategori.semi_variabel.map((item, index) => (
-                              <li key={index} className="text-sm text-red-800 dark:text-red-200">{item.description}</li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div className="bg-white/50 dark:bg-red-900/30 rounded-lg p-3 col-span-2">
-                          <h4 className="text-xs font-medium text-red-700 dark:text-red-300 mb-1">Tidak Tetap</h4>
-                          <ul className="space-y-1">
-                            {dummyAnalysis.analisis_pengeluaran.kategori.tidak_tetap.map((item, index) => (
-                              <li key={index} className="text-sm text-red-800 dark:text-red-200">{item.description}</li>
-                            ))}
+            ) : analysisError ? (
+              <div className="text-center py-8 text-red-500 dark:text-red-400">
+                {analysisError}
+              </div>
+            ) : (
+              <div className="prose dark:prose-invert max-w-none">
+                {/* AI Warning/Disclaimer Section */}
+                {showWarning && (
+                  <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6 relative">
+                    <button
+                      onClick={() => setShowWarning(false)}
+                      className="absolute top-2 right-2 p-1 rounded-full hover:bg-amber-100 dark:hover:bg-amber-800/30 transition-colors"
+                      aria-label="Close warning"
+                    >
+                      <X className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                    </button>
+                    <div className="flex items-start gap-3 pr-6">
+                      <div className="flex-shrink-0 mt-1">
+                        <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-2">
+                          Powered by Gemini AI
+                        </h3>
+                        <div className="text-xs text-amber-700 dark:text-amber-300 space-y-2">
+                          <p>
+                            This financial analysis is generated using Google's Gemini AI technology. Please note the following:
+                          </p>
+                          <ul className="list-disc pl-5 space-y-1">
+                            <li>The analysis is based on your transaction data and should be used as a reference only</li>
+                            <li>Financial decisions should not be made solely based on AI-generated insights</li>
+                            <li>Consult with financial advisors for professional advice on important financial matters</li>
+                            <li>The analysis is limited to once per week to ensure data accuracy and system stability</li>
+                            <li>Results may vary based on the quality and completeness of your transaction data</li>
                           </ul>
                         </div>
                       </div>
                     </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-red-800 dark:text-red-200 mb-2">Tren Pengeluaran</h3>
-                      <p className="text-sm text-red-800 dark:text-red-200">
-                        {dummyAnalysis.analisis_pengeluaran.tren}
+                  </div>
+                )}
+
+                {!analysisData ? (
+                  <div className="text-center py-8">
+                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-6 max-w-2xl mx-auto">
+                      <div className="flex flex-col items-center gap-4">
+                        <BrainCircuit className="w-12 h-12 text-gray-400 dark:text-gray-500" />
+                        <div className="space-y-2">
+                          <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                            No Analysis Data Available
+                          </h3>
+                          <p className="text-gray-500 dark:text-gray-400">
+                            You haven't generated any financial analysis yet. Click the Analyze button above to get started with your first AI-powered financial analysis.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Overview Section */}
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6 mb-6">
+                      <h2 className="text-xl font-semibold text-blue-900 dark:text-blue-100 mb-4 flex items-center gap-2">
+                        <span>📊</span> Ringkasan Umum
+                      </h2>
+                      <div className="overflow-x-auto">
+                        <table className="w-full border-collapse">
+                          <thead>
+                            <tr className="border-b border-blue-200 dark:border-blue-800">
+                              <th className="px-4 py-2 text-left text-sm font-medium text-blue-700 dark:text-blue-300">Bulan</th>
+                              <th className="px-4 py-2 text-right text-sm font-medium text-blue-700 dark:text-blue-300">Total Pemasukan</th>
+                              <th className="px-4 py-2 text-right text-sm font-medium text-blue-700 dark:text-blue-300">Total Pengeluaran</th>
+                              <th className="px-4 py-2 text-right text-sm font-medium text-blue-700 dark:text-blue-300">Arus Kas Bersih</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {analysisData.result.ringkasan_umum.bulan.map((bulan, index) => (
+                              <tr key={bulan} className="border-b border-blue-100 dark:border-blue-800/50">
+                                <td className="px-4 py-2 text-sm text-blue-900 dark:text-blue-100">
+                                  {new Date(bulan).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+                                </td>
+                                <td className="px-4 py-2 text-sm text-right text-green-600 dark:text-green-400">
+                                  +{formatCurrency(analysisData.result.ringkasan_umum.total_pemasukan[index])}
+                                </td>
+                                <td className="px-4 py-2 text-sm text-right text-red-600 dark:text-red-400">
+                                  -{formatCurrency(analysisData.result.ringkasan_umum.total_pengeluaran[index])}
+                                </td>
+                                <td className="px-4 py-2 text-sm text-right text-green-600 dark:text-green-400">
+                                  +{formatCurrency(analysisData.result.ringkasan_umum.arus_kas_bersih[index])}
+                                </td>
+                              </tr>
+                            ))}
+                            <tr className="bg-blue-50 dark:bg-blue-900/30">
+                              <td className="px-4 py-2 text-sm font-medium text-blue-900 dark:text-blue-100">Rata-rata</td>
+                              <td className="px-4 py-2 text-sm text-right font-medium text-green-600 dark:text-green-400">
+                                +{formatCurrency(analysisData.result.ringkasan_umum.rata_rata.total_pemasukan)}
+                              </td>
+                              <td className="px-4 py-2 text-sm text-right font-medium text-red-600 dark:text-red-400">
+                                -{formatCurrency(analysisData.result.ringkasan_umum.rata_rata.total_pengeluaran)}
+                              </td>
+                              <td className="px-4 py-2 text-sm text-right font-medium text-green-600 dark:text-green-400">
+                                +{formatCurrency(analysisData.result.ringkasan_umum.rata_rata.arus_kas_bersih)}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <p className="mt-4 text-sm text-blue-800 dark:text-blue-200">
+                        {analysisData.result.ringkasan_umum.catatan}
                       </p>
                     </div>
-                  </div>
-                </div>
-              </div>
 
-              {/* Key Observations & Recommendations */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                {/* Key Observations */}
-                <div className="bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 rounded-lg p-6">
-                  <h2 className="text-xl font-semibold text-purple-900 dark:text-purple-100 mb-4 flex items-center gap-2">
-                    <span>🔍</span> Observasi Kunci
-                  </h2>
-                  <div className="space-y-4">
-                    <div className="bg-white/50 dark:bg-purple-900/30 rounded-lg p-4">
-                      <h3 className="text-sm font-medium text-purple-800 dark:text-purple-200 mb-2">Kesehatan Finansial</h3>
-                      <p className="text-sm text-purple-800 dark:text-purple-200">
-                        {dummyAnalysis.observasi_kunci.kesehatan_finansial}
-                      </p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-white/50 dark:bg-purple-900/30 rounded-lg p-3">
-                        <h4 className="text-xs font-medium text-purple-700 dark:text-purple-300 mb-1">Kekuatan</h4>
-                        <p className="text-sm text-purple-800 dark:text-purple-200">{dummyAnalysis.observasi_kunci.kekuatan}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Income Analysis */}
+                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-6">
+                        <h2 className="text-xl font-semibold text-green-900 dark:text-green-100 mb-4 flex items-center gap-2">
+                          <span>💰</span> Analisis Pemasukan
+                        </h2>
+                        <div className="space-y-4">
+                          <div>
+                            <h3 className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">Sumber Pemasukan</h3>
+                            <ul className="space-y-2">
+                              <li className="flex items-start gap-2">
+                                <span className="text-green-600 dark:text-green-400">•</span>
+                                <span className="text-sm text-green-800 dark:text-green-200">
+                                  <span className="font-medium">Utama/Rutin:</span> {analysisData.result.analisis_pemasukan.sumber.utama}
+                                </span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-green-600 dark:text-green-400">•</span>
+                                <span className="text-sm text-green-800 dark:text-green-200">
+                                  <span className="font-medium">Tambahan/Tidak Tetap:</span> {analysisData.result.analisis_pemasukan.sumber.tambahan}
+                                </span>
+                              </li>
+                            </ul>
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">Stabilitas & Fluktuasi</h3>
+                            <ul className="space-y-2">
+                              <li className="flex items-start gap-2">
+                                <span className="text-green-600 dark:text-green-400">•</span>
+                                <span className="text-sm text-green-800 dark:text-green-200">
+                                  {analysisData.result.analisis_pemasukan.stabilitas}
+                                </span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-green-600 dark:text-green-400">•</span>
+                                <span className="text-sm text-green-800 dark:text-green-200">
+                                  {analysisData.result.analisis_pemasukan.fluktuasi}
+                                </span>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
                       </div>
-                      <div className="bg-white/50 dark:bg-purple-900/30 rounded-lg p-3">
-                        <h4 className="text-xs font-medium text-purple-700 dark:text-purple-300 mb-1">Kelemahan</h4>
-                        <p className="text-sm text-purple-800 dark:text-purple-200">{dummyAnalysis.observasi_kunci.kelemahan}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
 
-                {/* Recommendations */}
-                <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-lg p-6">
-                  <h2 className="text-xl font-semibold text-amber-900 dark:text-amber-100 mb-4 flex items-center gap-2">
-                    <span>🎯</span> Rekomendasi
-                  </h2>
-                  <div className="space-y-4">
-                    <div className="bg-white/50 dark:bg-amber-900/30 rounded-lg p-4">
-                      <h3 className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-2">Alokasi Surplus</h3>
-                      <ul className="space-y-2">
-                        <li className="flex items-start gap-2">
-                          <span className="text-amber-600 dark:text-amber-400">•</span>
-                          <span className="text-sm text-amber-800 dark:text-amber-200">
-                            <span className="font-medium">Dana Darurat:</span> {dummyAnalysis.rekomendasi.alokasi_surplus.dana_darurat}
-                          </span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-amber-600 dark:text-amber-400">•</span>
-                          <span className="text-sm text-amber-800 dark:text-amber-200">
-                            <span className="font-medium">Investasi:</span> {dummyAnalysis.rekomendasi.alokasi_surplus.investasi}
-                          </span>
-                        </li>
-                      </ul>
+                      {/* Expense Analysis */}
+                      <div className="bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 rounded-lg p-6">
+                        <h2 className="text-xl font-semibold text-red-900 dark:text-red-100 mb-4 flex items-center gap-2">
+                          <span>📉</span> Analisis Pengeluaran
+                        </h2>
+                        <div className="space-y-4">
+                          <div>
+                            <h3 className="text-sm font-medium text-red-800 dark:text-red-200 mb-2">Kategori Pengeluaran</h3>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div className="bg-white/50 dark:bg-red-900/30 rounded-lg p-3">
+                                <h4 className="text-xs font-medium text-red-700 dark:text-red-300 mb-1">Tetap/Wajib</h4>
+                                <ul className="space-y-1">
+                                  {analysisData.result.analisis_pengeluaran.kategori.wajib.map((item, index) => (
+                                    <li key={index} className="text-sm text-red-800 dark:text-red-200">{item.description}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                              <div className="bg-white/50 dark:bg-red-900/30 rounded-lg p-3">
+                                <h4 className="text-xs font-medium text-red-700 dark:text-red-300 mb-1">Semi-Variabel</h4>
+                                <ul className="space-y-1">
+                                  {analysisData.result.analisis_pengeluaran.kategori.semi_variabel.map((item, index) => (
+                                    <li key={index} className="text-sm text-red-800 dark:text-red-200">{item.description}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                              <div className="bg-white/50 dark:bg-red-900/30 rounded-lg p-3 col-span-2">
+                                <h4 className="text-xs font-medium text-red-700 dark:text-red-300 mb-1">Tidak Tetap</h4>
+                                <ul className="space-y-1">
+                                  {analysisData.result.analisis_pengeluaran.kategori.tidak_tetap.map((item, index) => (
+                                    <li key={index} className="text-sm text-red-800 dark:text-red-200">{item.description}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-medium text-red-800 dark:text-red-200 mb-2">Tren Pengeluaran</h3>
+                            <p className="text-sm text-red-800 dark:text-red-200">
+                              {analysisData.result.analisis_pengeluaran.tren}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="bg-white/50 dark:bg-amber-900/30 rounded-lg p-4">
-                      <h3 className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-2">Anggaran & Review</h3>
-                      <ul className="space-y-2">
-                        <li className="flex items-start gap-2">
-                          <span className="text-amber-600 dark:text-amber-400">•</span>
-                          <span className="text-sm text-amber-800 dark:text-amber-200">
-                            <span className="font-medium">Anggaran:</span> {dummyAnalysis.rekomendasi.anggaran_review.anggaran}
-                          </span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-amber-600 dark:text-amber-400">•</span>
-                          <span className="text-sm text-amber-800 dark:text-amber-200">
-                            <span className="font-medium">Review:</span> {dummyAnalysis.rekomendasi.anggaran_review.review}
-                          </span>
-                        </li>
-                      </ul>
+
+                    {/* Key Observations & Recommendations */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                      {/* Key Observations */}
+                      <div className="bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 rounded-lg p-6">
+                        <h2 className="text-xl font-semibold text-purple-900 dark:text-purple-100 mb-4 flex items-center gap-2">
+                          <span>🔍</span> Observasi Kunci
+                        </h2>
+                        <div className="space-y-4">
+                          <div className="bg-white/50 dark:bg-purple-900/30 rounded-lg p-4">
+                            <h3 className="text-sm font-medium text-purple-800 dark:text-purple-200 mb-2">Kesehatan Finansial</h3>
+                            <p className="text-sm text-purple-800 dark:text-purple-200">
+                              {analysisData.result.observasi_kunci.kesehatan_finansial}
+                            </p>
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-white/50 dark:bg-purple-900/30 rounded-lg p-3">
+                              <h4 className="text-xs font-medium text-purple-700 dark:text-purple-300 mb-1">Kekuatan</h4>
+                              <p className="text-sm text-purple-800 dark:text-purple-200">{analysisData.result.observasi_kunci.kekuatan}</p>
+                            </div>
+                            <div className="bg-white/50 dark:bg-purple-900/30 rounded-lg p-3">
+                              <h4 className="text-xs font-medium text-purple-700 dark:text-purple-300 mb-1">Kelemahan</h4>
+                              <p className="text-sm text-purple-800 dark:text-purple-200">{analysisData.result.observasi_kunci.kelemahan}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Recommendations */}
+                      <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-lg p-6">
+                        <h2 className="text-xl font-semibold text-amber-900 dark:text-amber-100 mb-4 flex items-center gap-2">
+                          <span>🎯</span> Rekomendasi
+                        </h2>
+                        <div className="space-y-4">
+                          <div className="bg-white/50 dark:bg-amber-900/30 rounded-lg p-4">
+                            <h3 className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-2">Alokasi Surplus</h3>
+                            <ul className="space-y-2">
+                              <li className="flex items-start gap-2">
+                                <span className="text-amber-600 dark:text-amber-400">•</span>
+                                <span className="text-sm text-amber-800 dark:text-amber-200">
+                                  <span className="font-medium">Dana Darurat:</span> {analysisData.result.rekomendasi.alokasi_surplus.dana_darurat}
+                                </span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-amber-600 dark:text-amber-400">•</span>
+                                <span className="text-sm text-amber-800 dark:text-amber-200">
+                                  <span className="font-medium">Investasi:</span> {analysisData.result.rekomendasi.alokasi_surplus.investasi}
+                                </span>
+                              </li>
+                            </ul>
+                          </div>
+                          <div className="bg-white/50 dark:bg-amber-900/30 rounded-lg p-4">
+                            <h3 className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-2">Anggaran & Review</h3>
+                            <ul className="space-y-2">
+                              <li className="flex items-start gap-2">
+                                <span className="text-amber-600 dark:text-amber-400">•</span>
+                                <span className="text-sm text-amber-800 dark:text-amber-200">
+                                  <span className="font-medium">Anggaran:</span> {analysisData.result.rekomendasi.anggaran_review.anggaran}
+                                </span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-amber-600 dark:text-amber-400">•</span>
+                                <span className="text-sm text-amber-800 dark:text-amber-200">
+                                  <span className="font-medium">Review:</span> {analysisData.result.rekomendasi.anggaran_review.review}
+                                </span>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
+                  </>
+                )}
               </div>
-            </div>
+            )}
           </CardContent>
         </Card>
       </div>

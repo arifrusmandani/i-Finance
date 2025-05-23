@@ -1,4 +1,5 @@
 import api from './api';
+import { AxiosError } from 'axios';
 
 interface CategoryReport {
   category: string;
@@ -84,14 +85,87 @@ export interface ExpenseCategoriesResponse {
   data: ExpenseCategory[];
 }
 
+export interface AnalysisResult {
+  ringkasan_umum: {
+    bulan: string[];
+    total_pemasukan: number[];
+    total_pengeluaran: number[];
+    arus_kas_bersih: number[];
+    rata_rata: {
+      total_pemasukan: number;
+      total_pengeluaran: number;
+      arus_kas_bersih: number;
+    };
+    catatan: string;
+  };
+  analisis_pemasukan: {
+    sumber: {
+      utama: string;
+      tambahan: string;
+    };
+    stabilitas: string;
+    fluktuasi: string;
+  };
+  analisis_pengeluaran: {
+    kategori: {
+      wajib: Array<{
+        category_code: string;
+        description: string;
+      }>;
+      semi_variabel: Array<{
+        category_code: string;
+        description: string;
+      }>;
+      tidak_tetap: Array<{
+        category_code: string;
+        description: string;
+      }>;
+    };
+    tren: string;
+  };
+  observasi_kunci: {
+    kesehatan_finansial: string;
+    kekuatan: string;
+    kelemahan: string;
+  };
+  rekomendasi: {
+    alokasi_surplus: {
+      dana_darurat: string;
+      investasi: string;
+    };
+    anggaran_review: {
+      anggaran: string;
+      review: string;
+    };
+  };
+}
+
+export interface AnalysisResponse {
+  status: boolean;
+  code: number;
+  message: string;
+  data: {
+    analysis_type: string;
+    input_data: string;
+    result: AnalysisResult;
+    created_at: string;
+  }
+}
+
+export interface ApiError {
+  status: boolean;
+  code: number;
+  message: string;
+}
+
 export const reportService = {
   async getCategoryReport(): Promise<ReportResponse> {
     try {
       const response = await api.get<ReportResponse>('/report/category');
       return response.data;
-    } catch (error: any) {
-      if (error.response?.data) {
-        throw error.response.data;
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.data) {
+        throw error.response.data as ApiError;
       }
       throw error;
     }
@@ -102,9 +176,9 @@ export const reportService = {
       const url = year ? `/report/monthly?year=${year}` : '/report/monthly';
       const response = await api.get<MonthlyChartResponse>(url);
       return response.data;
-    } catch (error: any) {
-      if (error.response?.data) {
-        throw error.response.data;
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.data) {
+        throw error.response.data as ApiError;
       }
       throw error;
     }
@@ -146,6 +220,30 @@ export const reportService = {
       return response.data;
     } catch (error) {
       console.error('Failed to fetch expense categories:', error);
+      throw error;
+    }
+  },
+
+  getLatestAnalysis: async (): Promise<AnalysisResponse> => {
+    try {
+      const response = await api.get('/ai/latest-analysis');
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.data) {
+        throw error.response.data as ApiError;
+      }
+      throw error;
+    }
+  },
+
+  analyzeFinancial: async (): Promise<AnalysisResponse> => {
+    try {
+      const response = await api.get('/ai/analyze-financial');
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.data) {
+        throw error.response.data as ApiError;
+      }
       throw error;
     }
   },
