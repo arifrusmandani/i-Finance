@@ -116,13 +116,13 @@ export default function OverviewSection() {
               </h3>
               <div className="flex items-center mt-2">
                 <div className={`flex items-center ${
-                  item.label === 'Total Period Expenses' ? 'text-rose-500' : 'text-emerald-500'
+                  item.percent < 0 ? 'text-rose-500' : 'text-emerald-500'
                 }`}>
-                  {item.label === 'Total Period Expenses' ? 
+                  {item.percent < 0 ? 
                     <ArrowDownIcon className="w-4 h-4 mr-1" /> : 
                     <ArrowUpIcon className="w-4 h-4 mr-1" />
                   }
-                  <span className="text-sm">{item.percent}%</span>
+                  <span className="text-sm">{Math.abs(item.percent)}%</span>
                 </div>
                 <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
                   Last month {formatCurrency(item.last_month)}
